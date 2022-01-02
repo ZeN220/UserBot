@@ -1,10 +1,11 @@
-from utils import config, Router, bot
 from vkwave.bots import (
     simple_user_message_handler,
     FromMeFilter,
     LevenshteinFilter,
     SimpleUserEvent
 )
+
+from utils import config, Router, bot
 
 
 qiwi_balance_router = Router(

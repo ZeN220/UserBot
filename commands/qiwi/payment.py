@@ -12,9 +12,7 @@ from vkwave.bots import (
     TextStartswithFilter,
     MessageArgsFilter
 )
-from aiogram import (
-    Bot
-)
+from aiogram import Bot
 
 from utils import bot, config, Router
 
