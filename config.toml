@@ -1,4 +1,4 @@
-to_delete_trigger = [ "dd", "oi", "дд", "ой",]
+to_delete_trigger = ["дд"]
 to_delete_argument = "-"
 blacklist_chats = []
 
