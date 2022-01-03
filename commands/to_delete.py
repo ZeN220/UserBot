@@ -15,7 +15,6 @@ to_delete_router = Router(
     'to_delete',
     'Команда для удаления указанного количество сообщений.'
 )
-my_id = config['VK']['user_id']
 
 
 @simple_user_message_handler(
@@ -37,7 +36,7 @@ async def to_delete(event: SimpleUserEvent):
         count=50 + to_delete_count
     )).response.items
     for message in messages:
-        if message.from_id == my_id and len(to_delete_list) <= to_delete_count:
+        if message.from_id == config['VK']['user_id'] and len(to_delete_list) <= to_delete_count:
             to_delete_list.append(message.id)
             if is_editing:
                 await event.api_ctx.messages.edit(
