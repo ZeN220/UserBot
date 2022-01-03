@@ -17,13 +17,13 @@ dev_router = Router(
     'system',
     'Команды для разработчиков ботов.'
 )
+dev_router.registrar.add_default_filter(FromMeFilter(True))
 
 
 @simple_user_message_handler(
     dev_router,
     MessageFromConversationTypeFilter(from_what='from_chat'),
-    TextFilter(('.peerid', '.пирид')),
-    FromMeFilter(True)
+    TextFilter(('.peerid', '.пирид'))
 )
 async def peer_id(event: SimpleUserEvent):
     await bot.api_context.messages.send(
@@ -35,8 +35,7 @@ async def peer_id(event: SimpleUserEvent):
 
 @simple_user_message_handler(
     dev_router,
-    TextStartswithFilter(('.id', '.ид')),
-    FromMeFilter(True)
+    TextStartswithFilter(('.id', '.ид'))
 )
 async def user_id_from_msg(event: SimpleUserEvent):
     user_id = await get_user_id(event)
@@ -49,8 +48,7 @@ async def user_id_from_msg(event: SimpleUserEvent):
 
 @simple_user_message_handler(
     dev_router,
-    TextStartswithFilter(('.eval', '.евал')),
-    FromMeFilter(True)
+    TextStartswithFilter(('.eval', '.евал'))
 )
 async def run_eval(event: SimpleUserEvent):
     """
@@ -67,8 +65,7 @@ async def run_eval(event: SimpleUserEvent):
 
 @simple_user_message_handler(
     dev_router,
-    TextFilter(('.ping', '.пинг')),
-    FromMeFilter(True)
+    TextFilter(('.ping', '.пинг'))
 )
 async def ping(event: SimpleUserEvent):
     message_id = event.object.object.message_id

@@ -22,6 +22,7 @@ qiwi_payment_router = Router(
     'payment',
     'Команда для отправки платежа на QIWI кошелек и его подтверждения'
 )
+qiwi_payment_router.registrar.add_default_filter(FromMeFilter(True))
 if config['commands']['payment']:
     aiogram = Bot(token=config['telegram']['telegram_bot_token'])
 
@@ -64,8 +65,7 @@ async def payment(data: PaymentData, client: AbstractHTTPClient):
 
 @simple_user_message_handler(
     qiwi_payment_router,
-    TextStartswithFilter('.qpay'),
-    FromMeFilter(True),
+    TextStartswithFilter('.qpay')
 )
 async def qiwi_payment(event: UserEvent):
     text = event.object.object.text.split()
@@ -101,8 +101,7 @@ async def qiwi_payment(event: UserEvent):
 @simple_user_message_handler(
     qiwi_payment_router,
     TextStartswithFilter('.code'),
-    MessageArgsFilter(1),
-    FromMeFilter(True)
+    MessageArgsFilter(1)
 )
 async def qiwi_code(event: UserEvent):
     input_code = event.object.object.text.split()[1]

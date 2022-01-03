@@ -17,13 +17,13 @@ social_router = Router(
     'social',
     'Команды направленные на взаимодействия с пользователями.'
 )
+social_router.registrar.add_default_filter(FromMeFilter(True))
 
 
 @simple_user_message_handler(
     social_router,
     TextStartswithFilter(['.добавить', '.invite', '.пригласить', '.инвайт']),
-    MessageFromConversationTypeFilter(from_what='from_chat'),
-    FromMeFilter(True)
+    MessageFromConversationTypeFilter(from_what='from_chat')
 )
 async def invite(event: SimpleUserEvent):
     peer_id = event.object.object.peer_id
@@ -54,7 +54,6 @@ async def invite(event: SimpleUserEvent):
 @simple_user_message_handler(
     social_router,
     MessageFromConversationTypeFilter(from_what='from_chat'),
-    FromMeFilter(True),
     TextFilter('+др')
 )
 async def fr_add(event: SimpleUserEvent):
@@ -81,7 +80,6 @@ async def fr_add(event: SimpleUserEvent):
 @simple_user_message_handler(
     social_router,
     MessageFromConversationTypeFilter(from_what='from_chat'),
-    FromMeFilter(True),
     TextFilter('+чс')
 )
 async def block_add(event: SimpleUserEvent):
@@ -108,7 +106,6 @@ async def block_add(event: SimpleUserEvent):
 @simple_user_message_handler(
     social_router,
     MessageFromConversationTypeFilter(from_what='from_chat'),
-    FromMeFilter(True),
     ReplyMessageFilter(),
     TextFilter('-др')
 )
@@ -126,7 +123,6 @@ async def fr_remove(event: SimpleUserEvent):
 @simple_user_message_handler(
     social_router,
     MessageFromConversationTypeFilter(from_what='from_chat'),
-    FromMeFilter(True),
     TextFilter('-чс')
 )
 async def block_remove(event: SimpleUserEvent):
@@ -152,7 +148,6 @@ async def block_remove(event: SimpleUserEvent):
 @simple_user_message_handler(
     social_router,
     MessageFromConversationTypeFilter(from_what='from_pm'),
-    FromMeFilter(True),
     TextFilter('/чс'),
 )
 async def block_add_ls(event: SimpleUserEvent):
