@@ -228,7 +228,8 @@ async def delete_message(event: SimpleUserEvent):
     logger,
     EventTypeFilter(4),
     FromGroupFilter(False),
-    ~PeerIdFilter(blacklist_chats)
+    ~PeerIdFilter(blacklist_chats),
+    FromMeFilter(False)
 )
 async def logging(event: SimpleUserEvent):
     attachments: List[str] = []
