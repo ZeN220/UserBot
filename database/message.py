@@ -3,7 +3,7 @@ from tortoise import fields
 
 
 class Message(Model):
-    message_id = fields.IntField(pk=True)
+    message_id = fields.IntField()
     user_id = fields.IntField()
     text = fields.TextField()
     attachments = fields.TextField(null=True)
