@@ -1,6 +1,7 @@
 from typing import List, Dict, Union
 from datetime import datetime
 import asyncio
+import time
 
 from vkwave.api.methods._error import APIError
 from vkwave.bots import (
@@ -118,7 +119,8 @@ async def chats_blacklist(event: SimpleUserEvent):
 
 @simple_user_message_handler(
     logger,
-    RegexFilter(r'(удаленные|редактированные) (.+) (\d+)')
+    RegexFilter(r'(удаленные|редактированные) (.+) (\d+)'),
+    FromMeFilter(True)
 )
 async def get_delete(event: SimpleUserEvent):
     delete_or_edit = event.text.split()[0]
@@ -147,7 +149,7 @@ async def get_delete(event: SimpleUserEvent):
     for note in notes:
         text = note['text']
         attachments = note['attachments']
-        edit_history = note['edit_history']
+        edit_history = note.get('edit_history')
         peer_id = note['peer_id']
 
         if peer_id and (text or attachments):
@@ -175,6 +177,7 @@ async def get_delete(event: SimpleUserEvent):
     ~PeerIdFilter(blacklist_chats)
 )
 async def delete_message(event: SimpleUserEvent):
+    time.sleep(1)
     message_id = event.object.object.message_id
     peer_id = event.object.object.peer_id
     find_message: Dict[str, Union[int, str, None]] = await Message.get_or_none(  # type: ignore
@@ -277,7 +280,8 @@ async def logging(event: SimpleUserEvent):
             timestamp=datetime.fromtimestamp(timestamp).strftime('%d.%m.%y %H:%M'),
             peer_id=event.peer_id if event.peer_id >= 2e9 else None,
             is_delete=False,
-            is_edit=False
+            is_edit=False,
+            edit_history=''
         )
         await asyncio.sleep(86400)
         await Message.filter(message_id=message_id).delete()
