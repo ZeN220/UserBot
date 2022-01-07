@@ -118,7 +118,8 @@ async def chats_blacklist(event: SimpleUserEvent):
 
 @simple_user_message_handler(
     logger,
-    RegexFilter(r'(удаленные|редактированные) (.+) (\d+)')
+    RegexFilter(r'(удаленные|редактированные) (.+) (\d+)'),
+    FromMeFilter(True)
 )
 async def get_delete(event: SimpleUserEvent):
     delete_or_edit = event.text.split()[0]
