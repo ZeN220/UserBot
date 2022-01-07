@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List
 from datetime import datetime
 import asyncio
 
@@ -228,8 +228,7 @@ async def delete_message(event: SimpleUserEvent):
     logger,
     EventTypeFilter(4),
     FromGroupFilter(False),
-    ~PeerIdFilter(blacklist_chats),
-    FromMeFilter(False)
+    ~PeerIdFilter(blacklist_chats)
 )
 async def logging(event: SimpleUserEvent):
     attachments: List[str] = []
@@ -247,27 +246,20 @@ async def logging(event: SimpleUserEvent):
         pictures = (await event.api_ctx.messages.get_by_id(
             message_ids=message_id
         )).response.items[0].attachments
-        urls: Dict[int, str] = {}
         for pic in pictures:
             '''
             Как поскольку, вк возвращает ссылку на фотографию в нескольких
             разрешениях, нужно сортировать список с ссылками
             '''
             sizes = pic.photo.sizes
-            for size in sizes:
-                attach: str = size.url
-                height: int = size.height
-                urls.update({
-                    height: attach
-                })
-            url_pic = max(urls.keys())
-            attachments.append(urls[url_pic])
+            pic = max(sizes, key=lambda photo_sizes: photo_sizes.height)
+            attachments.append(pic.url)
 
     if text or attachments:
         await Message.create(
             message_id=message_id,
             user_id=user_id,
-            attachments=''.join(attachments),
+            attachments='\n'.join(attachments),
             text=text,
             timestamp=datetime.fromtimestamp(timestamp).strftime('%d.%m.%y %H:%M'),
             peer_id=event.peer_id if event.peer_id >= 2e9 else None,
