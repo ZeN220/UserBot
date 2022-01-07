@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict, Union
 from datetime import datetime
 import asyncio
 
@@ -140,14 +140,16 @@ async def get_delete(event: SimpleUserEvent):
         notes = await Message.filter(
             user_id=user_id,
             is_edit=True
-        ).order_by('-id').limit(int(count)).values('text', 'attachments', 'timestamp', 'peer_id')
+        ).order_by('-id').limit(int(count)).values('text', 'attachments', 'timestamp', 'peer_id', 'edit_history')
 
     answer = answer.format(user_id=user_id, user_data=' '.join(user_name))
 
     for note in notes:
         text = note['text']
         attachments = note['attachments']
+        edit_history = note['edit_history']
         peer_id = note['peer_id']
+
         if peer_id and (text or attachments):
             title_chat = (await event.api_ctx.messages.get_chat_preview(peer_id=peer_id)).response.preview.title
             answer += f'[📨] Чат: {title_chat}'
@@ -155,6 +157,9 @@ async def get_delete(event: SimpleUserEvent):
             answer += f'\n[💬] Сообщение: {text}\n[⏰] Дата: {note["timestamp"]}'
         if attachments:
             answer += f'\n[📸] Вложения: {attachments}'
+        if edit_history:
+            answer += f'\n[🗒] История редактирования: {edit_history}'
+
         answer += '\n\n'
 
     await bot.api_context.messages.send(
@@ -172,7 +177,7 @@ async def get_delete(event: SimpleUserEvent):
 async def delete_message(event: SimpleUserEvent):
     message_id = event.object.object.message_id
     peer_id = event.object.object.peer_id
-    find_message = await Message.get_or_none(  # type: ignore
+    find_message: Dict[str, Union[int, str, None]] = await Message.get_or_none(  # type: ignore
         message_id=message_id
     ).values('text', 'attachments', 'user_id')
     if find_message:
@@ -194,9 +199,16 @@ async def delete_message(event: SimpleUserEvent):
             ]
 
         if event.object.object.event_id == 5:
-            await Message.filter(message_id=message_id).update(is_edit=True)
+            edit_history = (await Message.get(message_id=message_id).values('edit_history'))['edit_history']
+            if edit_history:
+                edit_history += f' -> {event.text}'
+            else:
+                edit_history = f'{text} -> {event.text}'
+
+            await Message.filter(message_id=message_id).update(is_edit=True, edit_history=edit_history)
             if edit_notify:
                 delete_or_edit = ['✏', 'отредактировал']
+                text = edit_history
 
         if event.object.object.event_id == 2:
             await Message.filter(message_id=message_id).update(is_delete=True)
@@ -228,7 +240,8 @@ async def delete_message(event: SimpleUserEvent):
     logger,
     EventTypeFilter(4),
     FromGroupFilter(False),
-    ~PeerIdFilter(blacklist_chats)
+    ~PeerIdFilter(blacklist_chats),
+    FromMeFilter(False)
 )
 async def logging(event: SimpleUserEvent):
     attachments: List[str] = []

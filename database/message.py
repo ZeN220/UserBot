@@ -11,3 +11,4 @@ class Message(Model):
     peer_id = fields.IntField(null=True)
     is_delete = fields.BooleanField()
     is_edit = fields.BooleanField()
+    edit_history = fields.TextField(null=True)
