@@ -16,7 +16,7 @@ user_token = ""
 В него вы должны вставить непосредственно свой токен. Взять его можно на [этом](vkhost.github.io) сайте (советую выбирать VK Admin). Конечный вид должен быть типа:
 ```
 [VK]
-user_token = "5v9lhvh0dstwefnsk9vv2j62jwkbk04hfn9ng7mdsd6ftxio8pz99edgo2cm3t2moqv96gt3ll1ap4vb3"
+user_token = "e970ba4efcb83cc7f364bf6e946a718a0311f929448f46285dae64eb7d8fc881d577d8032d3d28f6a6a81"
 ```
 После, вы можете спокойно запускать бота, командой `python3.8 main.py` и он будет стабильно работать. Но в файле **config.toml** есть и другие поля, о них также стоит поговорить.
 
