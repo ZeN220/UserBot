@@ -5,7 +5,6 @@ import time
 from vkwave.bots.storage.types import Key
 from vkwave.http import AbstractHTTPClient
 from vkwave.bots import (
-    simple_user_message_handler,
     TTLStorage,
     UserEvent,
     FromMeFilter,
@@ -14,16 +13,17 @@ from vkwave.bots import (
 )
 from aiogram import Bot
 
-from utils import bot, config
+from utils import send_message_to_me, config
 from dispatching import Router
 
 
 storage = TTLStorage(60)
 qiwi_payment_router = Router(
-    'payment',
+    __name__,
     'Команда для отправки платежа на QIWI кошелек и его подтверждения'
 )
 qiwi_payment_router.registrar.add_default_filter(FromMeFilter(True))
+
 if config['commands']['payment']:
     aiogram = Bot(token=config['telegram']['telegram_bot_token'])
 
@@ -80,7 +80,7 @@ async def qiwi_payment(event: UserEvent):
                 text=f'Ваш код для подтверждения платежа на QIWI кошелёк: {code}',
                 chat_id=config['telegram']['telegram_id']
             )
-            await bot.api_context.messages.send(
+            await send_message_to_me(
                 message='[🥝] Отправлен код подтверждения платежа. '
                         'Ожидается ввод.',
                 peer_id=config['VK']['user_id'],
@@ -88,7 +88,7 @@ async def qiwi_payment(event: UserEvent):
             )
 
         else:
-            await bot.api_context.messages.send(
+            await send_message_to_me(
                 message='[🥝] Отправляю перевод...',
                 peer_id=config['VK']['user_id'],
                 random_id=0
@@ -108,7 +108,7 @@ async def qiwi_code(event: UserEvent):
     payment_data = await storage.get(Key(input_code), None)
 
     if payment_data:
-        await bot.api_context.messages.send(
+        await send_message_to_me(
             message='[🥝] Код введён верно! Отправляю перевод...',
             peer_id=config['VK']['user_id'],
             random_id=0
@@ -118,7 +118,7 @@ async def qiwi_code(event: UserEvent):
         )
 
     else:
-        await bot.api_context.messages.send(
+        await send_message_to_me(
             message='[🥝] Вы ввели неправильный код подтверждения.',
             peer_id=config['VK']['user_id'],
             random_id=0

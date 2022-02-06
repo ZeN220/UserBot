@@ -1,7 +1,6 @@
 import time
 
 from vkwave.bots import (
-    simple_user_message_handler,
     SimpleUserEvent,
     FromMeFilter,
     LevenshteinFilter
@@ -13,7 +12,7 @@ from dispatching import Router
 
 my_id = config['VK']['user_id']
 messages_router = Router(
-    'messages',
+    __name__,
     'Команды для взаимодействиями с сообщениями.'
 )
 

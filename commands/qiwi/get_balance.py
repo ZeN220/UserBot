@@ -4,12 +4,12 @@ from vkwave.bots import (
     SimpleUserEvent
 )
 
-from utils import config, bot
+from utils import config, send_message_to_me
 from dispatching import Router
 
 
 qiwi_balance_router = Router(
-    'get_balance',
+    __name__,
     'Команда для получение баланса с указанного QIWI кошелька.'
 )
 
@@ -36,9 +36,7 @@ async def qiwi_balance(event: SimpleUserEvent):
     # Разбивка числа на разряды для читаемости
     balance = f'{balance:,}'.replace(',', ' ')
 
-    await bot.api_context.messages.send(
+    await send_message_to_me(
         message=f'[🥝] Ваш баланс на кошельке QIWI составляет -- '
                 f'{balance.replace(".", ",")} рублей!',
-        peer_id=config['VK']['user_id'],
-        random_id=0
     )

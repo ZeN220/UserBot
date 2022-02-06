@@ -9,13 +9,12 @@ from vkwave.bots import (
     TextFilter
 )
 
-from utils import bot, config, get_user_id
+from utils import get_user_id, send_message_to_me
 from dispatching import Router
 
 
-my_id = config['VK']['user_id']
 social_router = Router(
-    'social',
+    __name__,
     'Команды направленные на взаимодействия с пользователями.'
 )
 social_router.registrar.add_default_filter(FromMeFilter(True))
@@ -34,21 +33,17 @@ async def invite(event: SimpleUserEvent):
             chat_id=peer_id - 2e9,
             user_id=user_id
         )
-        await bot.api_context.messages.send(
+        await send_message_to_me(
             message=f'[🔧] [id{user_id}|Пользователь] '
                     f'успешно добавлен в беседу.',
-            peer_id=my_id,
-            random_id=0
         )
 
     except APIError:
-        await bot.api_context.messages.send(
+        await send_message_to_me(
             message=f'[🔧] Ошибка! '
                     f'[id{user_id}|Пользователь] '
                     f'либо уже находится в беседе, '
                     f'либо не находится в друзьях.',
-            peer_id=my_id,
-            random_id=0
         )
 
 
@@ -61,20 +56,16 @@ async def fr_add(event: SimpleUserEvent):
 
     try:
         await event.api_ctx.friends.add(user_id=user_id)
-        await bot.api_context.messages.send(
-            peer_id=my_id,
+        await send_message_to_me(
             message=f'[♻] [id{user_id}|Пользователь] '
-                    f'добавлен в друзья.',
-            random_id=0
+                    f'добавлен в друзья.'
         )
 
     except APIError:
-        await bot.api_context.messages.send(
-            peer_id=my_id,
+        await send_message_to_me(
             message=f'[💣] [id{user_id}|Пользователь] '
                     f'либо находится в черном списке, '
-                    f'либо уже добавлен в друзья.',
-            random_id=0
+                    f'либо уже добавлен в друзья.'
         )
 
 
@@ -87,19 +78,15 @@ async def block_add(event: SimpleUserEvent):
 
     try:
         await event.api_ctx.account.ban(owner_id=user_id)
-        await bot.api_context.messages.send(
-            peer_id=my_id,
+        await send_message_to_me(
             message=f'[💣] [id{user_id}|Пользователь] '
                     f'добавлен в черный список.',
-            random_id=0
         )
 
     except APIError:
-        await bot.api_context.messages.send(
-            peer_id=my_id,
+        await send_message_to_me(
             message=f'[💣] [id{user_id}|Пользователь] '
-                    f'уже находится в черном списке.',
-            random_id=0
+                    f'уже находится в черном списке.'
         )
 
 
@@ -112,10 +99,8 @@ async def fr_remove(event: SimpleUserEvent):
     user_id = await get_user_id(event)
 
     await event.api_ctx.friends.delete(user_id=user_id)
-    await bot.api_context.messages.send(
-        peer_id=my_id,
-        message=f'[♻] [id{user_id}|Пользователь] удален из друзей.',
-        random_id=0
+    await send_message_to_me(
+        message=f'[♻] [id{user_id}|Пользователь] удален из друзей.'
     )
 
 
@@ -128,19 +113,15 @@ async def block_remove(event: SimpleUserEvent):
 
     try:
         await event.api_ctx.account.unban(owner_id=user_id)
-        await bot.api_context.messages.send(
-            peer_id=my_id,
+        await send_message_to_me(
             message=f'[💣] [id{user_id}|Пользователь] '
-                    f'удален из черного списка.',
-            random_id=0
+                    f'удален из черного списка.'
         )
 
     except APIError:
-        await bot.api_context.messages.send(
-            peer_id=my_id,
+        await send_message_to_me(
             message=f'[💣] [id{user_id}|Пользователь] '
-                    f'не находится в черном списке.',
-            random_id=0
+                    f'не находится в черном списке.'
         )
 
 
@@ -151,9 +132,7 @@ async def block_remove(event: SimpleUserEvent):
 )
 async def block_add_ls(event: SimpleUserEvent):
     await event.api_ctx.account.ban(owner_id=event.peer_id)
-    await bot.api_context.messages.send(
-        peer_id=my_id,
+    await send_message_to_me(
         message=f'[💣] [id{event.peer_id}|Пользователь] '
                 f'добавлен в черный список.',
-        random_id=0
     )

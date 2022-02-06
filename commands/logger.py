@@ -18,13 +18,13 @@ from vkwave.client import AIOHTTPClient
 from vkwave.api import API
 import toml
 
-from utils import config, bot, get_user_id
+from utils import config, get_user_id, send_message_to_me
 from dispatching import Router
 from database import Message
 
 
 logger = Router(
-    'logger',
+    __name__,
     'Роутер для логирования входящих сообщений, '
     'а также для уведомлений о удалении и редактировании сообщений'
 )
@@ -53,10 +53,8 @@ async def remove_chat_to_blacklist(event: SimpleUserEvent):
     blacklist_chats.remove(chat)
 
     toml.dump(config, open('config.toml', 'w', encoding='utf-8'))
-    await bot.api_context.messages.send(
-        random_id=0,
+    await send_message_to_me(
         message=message,
-        peer_id=config['VK']['user_id']
     )
 
 
@@ -76,10 +74,8 @@ async def add_chat_to_blacklist(event: SimpleUserEvent):
     )
 
     toml.dump(config, open('config.toml', 'w', encoding='utf-8'))
-    await bot.api_context.messages.send(
-        random_id=0,
+    await send_message_to_me(
         message=message,
-        peer_id=config['VK']['user_id']
     )
 
 
@@ -97,18 +93,14 @@ async def chats_blacklist(event: SimpleUserEvent):
             answer += f'{name} [{chat}]\n'
 
         except APIError:
-            await bot.api_context.messages.send(
-                random_id=0,
+            await send_message_to_me(
                 message=f'Доступ к чату [{chat}] потерян. '
                         f'Он будет удален из черного списка.',
-                peer_id=config["my_id"]
             )
             blacklist_chats.remove(chat)
 
-    await bot.api_context.messages.send(
-        random_id=0,
+    await send_message_to_me(
         message=answer,
-        peer_id=config['VK']['user_id']
     )
     toml.dump(config, open('config.toml', 'w', encoding='utf-8'))
 
@@ -159,10 +151,8 @@ async def get_delete(event: SimpleUserEvent):
 
         answer += '\n\n'
 
-    await bot.api_context.messages.send(
-        message=answer,
-        random_id=0,
-        peer_id=config['VK']['user_id']
+    await send_message_to_me(
+        message=answer
     )
 
 
@@ -219,16 +209,14 @@ async def delete_message(event: SimpleUserEvent):
             from_what = f'из чата «{chat}»'
 
         if delete_or_edit:
-            await bot.api_context.messages.send(
-                random_id=0,
+            await send_message_to_me(
                 message=f'[{delete_or_edit[0]}] [id{user_id}|'
                         f'{user_data.first_name} {user_data.last_name}] '
                         f'{delete_or_edit[1]} сообщение {from_what}:\n{text}',
                 attachment=await uploader.get_attachments_from_links(
                     peer_id=565694749,
                     links=attachments
-                ),
-                peer_id=config['VK']['user_id']
+                )
             )
         delete_or_edit.clear()
 

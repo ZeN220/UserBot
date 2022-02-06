@@ -8,13 +8,13 @@ from vkwave.bots import (
     TextFilter
 )
 
-from utils import config, bot, get_user_id
+from utils import get_user_id, send_message_to_me
 from dispatching import Router
 
 
 my_id = config['VK']['user_id']
 dev_router = Router(
-    'system',
+    __name__,
     'Команды для разработчиков ботов.'
 )
 dev_router.registrar.add_default_filter(FromMeFilter(True))
@@ -25,10 +25,8 @@ dev_router.registrar.add_default_filter(FromMeFilter(True))
     TextFilter(('.peerid', '.пирид'))
 )
 async def peer_id(event: SimpleUserEvent):
-    await bot.api_context.messages.send(
+    await send_message_to_me(
         message=f'Peer_id -- {event.object.object.peer_id}',
-        peer_id=my_id,
-        random_id=0
     )
 
 
@@ -37,10 +35,8 @@ async def peer_id(event: SimpleUserEvent):
 )
 async def user_id_from_msg(event: SimpleUserEvent):
     user_id = await get_user_id(event)
-    await bot.api_context.messages.send(
-        message=f'UserID -- {user_id}',
-        peer_id=my_id,
-        random_id=0
+    await send_message_to_me(
+        message=f'UserID -- {user_id}'
     )
 
 
@@ -59,10 +55,8 @@ async def get_message_id(event: SimpleUserEvent):
     elif fwd:
         message_id = message_id.fwd_messages[0].id
 
-    await bot.api_context.messages.send(
-        message=f'MessageID -- {message_id}',
-        peer_id=my_id,
-        random_id=0
+    await send_message_to_me(
+        message=f'MessageID -- {message_id}'
     )
 
 
@@ -75,10 +69,8 @@ async def run_eval(event: SimpleUserEvent):
     """
     code = event.object.object.text[5:]
     result_eval = eval(code)
-    await bot.api_context.messages.send(
+    await send_message_to_me(
         message=result_eval,
-        peer_id=my_id,
-        random_id=0
     )
 
 
@@ -94,8 +86,6 @@ async def ping(event: SimpleUserEvent):
     )
     after_time = time()
     ping_time = round(after_time - before_time, 3)
-    await bot.api_context.messages.send(
-        message=f'Задержка составляет {ping_time} секунд',
-        peer_id=my_id,
-        random_id=0
+    await send_message_to_me(
+        message=f'Задержка составляет {ping_time} секунд'
     )

@@ -28,6 +28,15 @@ async def set_my_id(api_ctx: APIOptionsRequestContext) -> None:
     toml.dump(config, open('config.toml', 'w', encoding='utf-8'))
 
 
+async def send_message_to_me(message: str, **kwargs):
+    await bot.api_context.messages.send(
+        message=message,
+        peer_id=config['user_id'],
+        random_id=0,
+        **kwargs
+    )
+
+
 async def database_init() -> None:
     await Tortoise.init(
         db_url='sqlite://logging.sqlite',
