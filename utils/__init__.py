@@ -8,3 +8,4 @@ from .tools import (
 )
 from .middleware import Middleware
 from .logger import error_logger
+from .filters import TemplateFilter

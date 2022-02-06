@@ -14,7 +14,7 @@ from dispatching import Router
 
 
 social_router = Router(
-    __name__,
+    'social',
     'Команды направленные на взаимодействия с пользователями.'
 )
 social_router.registrar.add_default_filter(FromMeFilter(True))

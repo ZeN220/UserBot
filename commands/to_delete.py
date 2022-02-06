@@ -13,7 +13,7 @@ from utils import config
 
 to_delete_list: List[int] = []
 to_delete_router = Router(
-    __name__,
+    'to_delete',
     'Команда для удаления указанного количество сообщений.'
 )
 

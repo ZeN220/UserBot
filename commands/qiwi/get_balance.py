@@ -9,7 +9,7 @@ from dispatching import Router
 
 
 qiwi_balance_router = Router(
-    __name__,
+    'get_balance',
     'Команда для получение баланса с указанного QIWI кошелька.'
 )
 

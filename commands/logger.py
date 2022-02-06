@@ -12,7 +12,8 @@ from vkwave.bots import (
     TextFilter,
     SimpleUserEvent,
     PhotoUploader,
-    FromMeFilter
+    FromMeFilter,
+    StickerFilter
 )
 from vkwave.client import AIOHTTPClient
 from vkwave.api import API
@@ -24,7 +25,7 @@ from database import Message
 
 
 logger = Router(
-    __name__,
+    'logger',
     'Роутер для логирования входящих сообщений, '
     'а также для уведомлений о удалении и редактировании сообщений'
 )
@@ -225,7 +226,8 @@ async def delete_message(event: SimpleUserEvent):
     EventTypeFilter(4),
     FromGroupFilter(False),
     ~PeerIdFilter(blacklist_chats),
-    FromMeFilter(False)
+    FromMeFilter(False),
+    StickerFilter(False)
 )
 async def logging(event: SimpleUserEvent):
     attachments: List[str] = []

@@ -6,13 +6,12 @@ from vkwave.bots import (
     LevenshteinFilter
 )
 
-from utils import bot, config
+from utils import send_message_to_me
 from dispatching import Router
 
 
-my_id = config['VK']['user_id']
 messages_router = Router(
-    __name__,
+    'messages',
     'Команды для взаимодействиями с сообщениями.'
 )
 
@@ -22,11 +21,9 @@ messages_router = Router(
     FromMeFilter(True)
 )
 async def read_messages(event: SimpleUserEvent):
-    send_msg_id = (await bot.api_context.messages.send(
-        peer_id=my_id,
-        message='Начинаю прочтение всех сообщений...',
-        random_id=0
-    )).response
+    await send_message_to_me(
+        message='Начинаю прочтение всех сообщений...'
+    )
     # Получение непрочитанных диалогов
     chats = (await event.api_ctx.messages.get_conversations(
         filter='unread', count=200
@@ -40,9 +37,7 @@ async def read_messages(event: SimpleUserEvent):
     time2 = time.time()
 
     done_time = round(time2 - time1, 2)
-    await bot.api_context.messages.edit(
+    await send_message_to_me(
         message=f'Отлично! Было прочтено {len(chats)} '
                 f'диалогов за {done_time} секунд',
-        message_id=send_msg_id,
-        peer_id=my_id
     )

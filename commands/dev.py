@@ -12,9 +12,8 @@ from utils import get_user_id, send_message_to_me
 from dispatching import Router
 
 
-my_id = config['VK']['user_id']
 dev_router = Router(
-    __name__,
+    'dev',
     'Команды для разработчиков ботов.'
 )
 dev_router.registrar.add_default_filter(FromMeFilter(True))

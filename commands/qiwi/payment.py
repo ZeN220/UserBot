@@ -19,7 +19,7 @@ from dispatching import Router
 
 storage = TTLStorage(60)
 qiwi_payment_router = Router(
-    __name__,
+    'payment',
     'Команда для отправки платежа на QIWI кошелек и его подтверждения'
 )
 qiwi_payment_router.registrar.add_default_filter(FromMeFilter(True))
