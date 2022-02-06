@@ -1,8 +1,10 @@
-from typing import Optional, List
 import re
 
-from vkwave.bots import SimpleLongPollBot, DefaultRouter, SimpleUserEvent, SimpleLongPollUserBot
-from vkwave.bots.core.dispatching.filters import BaseFilter
+from vkwave.bots import (
+    SimpleLongPollBot,
+    SimpleUserEvent,
+    SimpleLongPollUserBot,
+)
 from vkwave.api import APIOptionsRequestContext
 from tortoise import Tortoise
 import toml
@@ -16,18 +18,6 @@ if config['VK']['bot_token']:
                             group_id=config['VK']['group_id'])
 
 USER_MENTION_REGEXP = re.compile(r"\[id(\d+)\|[^\]\[]+]")
-
-
-class Router(DefaultRouter):
-    def __init__(
-        self,
-        name: str,
-        description: str,
-        filters: Optional[List[BaseFilter]] = None
-    ):
-        super().__init__(filters)
-        self.name = name
-        self.description = description
 
 
 async def set_my_id(api_ctx: APIOptionsRequestContext) -> None:

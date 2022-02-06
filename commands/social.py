@@ -9,7 +9,8 @@ from vkwave.bots import (
     TextFilter
 )
 
-from utils import bot, config, Router, get_user_id
+from utils import bot, config, get_user_id
+from dispatching import Router
 
 
 my_id = config['VK']['user_id']
@@ -20,14 +21,14 @@ social_router = Router(
 social_router.registrar.add_default_filter(FromMeFilter(True))
 
 
-@simple_user_message_handler(
-    social_router,
+@social_router.message_handler(
     TextStartswithFilter(['.добавить', '.invite', '.пригласить', '.инвайт']),
     MessageFromConversationTypeFilter(from_what='from_chat')
 )
 async def invite(event: SimpleUserEvent):
     peer_id = event.object.object.peer_id
     user_id = await get_user_id(event)
+
     try:
         await event.api_ctx.messages.add_chat_user(
             chat_id=peer_id - 2e9,
@@ -51,13 +52,13 @@ async def invite(event: SimpleUserEvent):
         )
 
 
-@simple_user_message_handler(
-    social_router,
+@social_router.message_handler(
     MessageFromConversationTypeFilter(from_what='from_chat'),
     TextFilter('+др')
 )
 async def fr_add(event: SimpleUserEvent):
     user_id = await get_user_id(event)
+
     try:
         await event.api_ctx.friends.add(user_id=user_id)
         await bot.api_context.messages.send(
@@ -77,8 +78,7 @@ async def fr_add(event: SimpleUserEvent):
         )
 
 
-@simple_user_message_handler(
-    social_router,
+@social_router.message_handler(
     MessageFromConversationTypeFilter(from_what='from_chat'),
     TextFilter('+чс')
 )
@@ -103,8 +103,7 @@ async def block_add(event: SimpleUserEvent):
         )
 
 
-@simple_user_message_handler(
-    social_router,
+@social_router.message_handler(
     MessageFromConversationTypeFilter(from_what='from_chat'),
     ReplyMessageFilter(),
     TextFilter('-др')
@@ -120,13 +119,13 @@ async def fr_remove(event: SimpleUserEvent):
     )
 
 
-@simple_user_message_handler(
-    social_router,
+@social_router.message_handler(
     MessageFromConversationTypeFilter(from_what='from_chat'),
     TextFilter('-чс')
 )
 async def block_remove(event: SimpleUserEvent):
     user_id = await get_user_id(event)
+
     try:
         await event.api_ctx.account.unban(owner_id=user_id)
         await bot.api_context.messages.send(

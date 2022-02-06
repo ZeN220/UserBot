@@ -1,11 +1,11 @@
 from vkwave.bots import (
-    simple_user_message_handler,
     FromMeFilter,
     LevenshteinFilter,
     SimpleUserEvent
 )
 
-from utils import config, Router, bot
+from utils import config, bot
+from dispatching import Router
 
 
 qiwi_balance_router = Router(
@@ -14,8 +14,7 @@ qiwi_balance_router = Router(
 )
 
 
-@simple_user_message_handler(
-    qiwi_balance_router,
+@qiwi_balance_router.message_handler(
     LevenshteinFilter(['.qbalance'], 2),
     FromMeFilter(True)
 )
@@ -33,8 +32,10 @@ async def qiwi_balance(event: SimpleUserEvent):
         method='get'
     )
     balance = (await qiwi_get.json())['accounts'][0]['balance']['amount']
+
     # Разбивка числа на разряды для читаемости
     balance = f'{balance:,}'.replace(',', ' ')
+
     await bot.api_context.messages.send(
         message=f'[🥝] Ваш баланс на кошельке QIWI составляет -- '
                 f'{balance.replace(".", ",")} рублей!',

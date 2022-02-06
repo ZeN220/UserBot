@@ -14,7 +14,8 @@ from vkwave.bots import (
 )
 from aiogram import Bot
 
-from utils import bot, config, Router
+from utils import bot, config
+from dispatching import Router
 
 
 storage = TTLStorage(60)
@@ -63,8 +64,7 @@ async def payment(data: PaymentData, client: AbstractHTTPClient):
     return await pay.json()
 
 
-@simple_user_message_handler(
-    qiwi_payment_router,
+@qiwi_payment_router.message_handler(
     TextStartswithFilter('.qpay')
 )
 async def qiwi_payment(event: UserEvent):
@@ -98,8 +98,7 @@ async def qiwi_payment(event: UserEvent):
             )
 
 
-@simple_user_message_handler(
-    qiwi_payment_router,
+@qiwi_payment_router.message_handler(
     TextStartswithFilter('.code'),
     MessageArgsFilter(1)
 )
@@ -107,6 +106,7 @@ async def qiwi_code(event: UserEvent):
     input_code = event.object.object.text.split()[1]
     # Получение данных для платежа
     payment_data = await storage.get(Key(input_code), None)
+
     if payment_data:
         await bot.api_context.messages.send(
             message='[🥝] Код введён верно! Отправляю перевод...',

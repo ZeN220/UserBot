@@ -1,13 +1,14 @@
 from typing import List
 import re
 
-from utils import config, Router
 from vkwave.bots import (
-    simple_user_message_handler,
     SimpleUserEvent,
     FromMeFilter,
     TextStartswithFilter
 )
+
+from dispatching import Router
+from utils import config
 
 
 to_delete_list: List[int] = []
@@ -17,8 +18,7 @@ to_delete_router = Router(
 )
 
 
-@simple_user_message_handler(
-    to_delete_router,
+@to_delete_router.message_handler(
     TextStartswithFilter(config['to_delete_trigger']),
     FromMeFilter(True)
 )

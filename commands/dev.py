@@ -1,7 +1,6 @@
 from time import time
 
 from vkwave.bots import (
-    simple_user_message_handler,
     SimpleUserEvent,
     FromMeFilter,
     MessageFromConversationTypeFilter,
@@ -9,7 +8,8 @@ from vkwave.bots import (
     TextFilter
 )
 
-from utils import config, bot, Router, get_user_id
+from utils import config, bot, get_user_id
+from dispatching import Router
 
 
 my_id = config['VK']['user_id']
@@ -20,8 +20,7 @@ dev_router = Router(
 dev_router.registrar.add_default_filter(FromMeFilter(True))
 
 
-@simple_user_message_handler(
-    dev_router,
+@dev_router.message_handler(
     MessageFromConversationTypeFilter(from_what='from_chat'),
     TextFilter(('.peerid', '.пирид'))
 )
@@ -33,8 +32,7 @@ async def peer_id(event: SimpleUserEvent):
     )
 
 
-@simple_user_message_handler(
-    dev_router,
+@dev_router.message_handler(
     TextStartswithFilter(('.id', '.ид'))
 )
 async def user_id_from_msg(event: SimpleUserEvent):
@@ -46,8 +44,7 @@ async def user_id_from_msg(event: SimpleUserEvent):
     )
 
 
-@simple_user_message_handler(
-    dev_router,
+@dev_router.message_handler(
     TextFilter('.msgid')
 )
 async def get_message_id(event: SimpleUserEvent):
@@ -69,8 +66,7 @@ async def get_message_id(event: SimpleUserEvent):
     )
 
 
-@simple_user_message_handler(
-    dev_router,
+@dev_router.message_handler(
     TextStartswithFilter(('.eval', '.евал'))
 )
 async def run_eval(event: SimpleUserEvent):
@@ -86,8 +82,7 @@ async def run_eval(event: SimpleUserEvent):
     )
 
 
-@simple_user_message_handler(
-    dev_router,
+@dev_router.message_handler(
     TextFilter(('.ping', '.пинг'))
 )
 async def ping(event: SimpleUserEvent):

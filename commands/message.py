@@ -7,7 +7,8 @@ from vkwave.bots import (
     LevenshteinFilter
 )
 
-from utils import bot, config, Router
+from utils import bot, config
+from dispatching import Router
 
 
 my_id = config['VK']['user_id']
@@ -17,8 +18,7 @@ messages_router = Router(
 )
 
 
-@simple_user_message_handler(
-    messages_router,
+@messages_router.message_handler(
     LevenshteinFilter(['.чтение', '.msgread', '.read'], 2),
     FromMeFilter(True)
 )

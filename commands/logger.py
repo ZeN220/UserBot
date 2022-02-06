@@ -5,8 +5,6 @@ import time
 
 from vkwave.api.methods._error import APIError
 from vkwave.bots import (
-    simple_user_handler,
-    simple_user_message_handler,
     EventTypeFilter,
     FromGroupFilter,
     RegexFilter,
@@ -20,7 +18,8 @@ from vkwave.client import AIOHTTPClient
 from vkwave.api import API
 import toml
 
-from utils import config, bot, Router, get_user_id
+from utils import config, bot, get_user_id
+from dispatching import Router
 from database import Message
 
 
@@ -38,8 +37,7 @@ del_notify = config['logger']['delete_notification']
 edit_notify = config['logger']['edit_notification']
 
 
-@simple_user_message_handler(
-    logger,
+@logger.message_handler(
     TextFilter('чсчат-'),
     FromMeFilter(True)
 )
@@ -62,8 +60,7 @@ async def remove_chat_to_blacklist(event: SimpleUserEvent):
     )
 
 
-@simple_user_message_handler(
-    logger,
+@logger.message_handler(
     TextFilter('чсчат+'),
     FromMeFilter(True)
 )
@@ -86,8 +83,7 @@ async def add_chat_to_blacklist(event: SimpleUserEvent):
     )
 
 
-@simple_user_message_handler(
-    logger,
+@logger.message_handler(
     TextFilter('чсчаты'),
     FromMeFilter(True)
 )
@@ -117,8 +113,7 @@ async def chats_blacklist(event: SimpleUserEvent):
     toml.dump(config, open('config.toml', 'w', encoding='utf-8'))
 
 
-@simple_user_message_handler(
-    logger,
+@logger.message_handler(
     RegexFilter(r'(удаленные|редактированные) (.+) (\d+)'),
     FromMeFilter(True)
 )
@@ -171,8 +166,7 @@ async def get_delete(event: SimpleUserEvent):
     )
 
 
-@simple_user_handler(
-    logger,
+@logger.handler(
     EventTypeFilter((2, 5)),
     ~PeerIdFilter(blacklist_chats)
 )
@@ -239,8 +233,7 @@ async def delete_message(event: SimpleUserEvent):
         delete_or_edit.clear()
 
 
-@simple_user_message_handler(
-    logger,
+@logger.message_handler(
     EventTypeFilter(4),
     FromGroupFilter(False),
     ~PeerIdFilter(blacklist_chats),
