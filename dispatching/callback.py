@@ -31,6 +31,6 @@ class Callback(BaseCallback):
             await bot.api_context.messages.send(
                 message=f'При выполнении функции {self.func} произошла ошибка:\n{exc}'
                         f'\nБолее подробная информация указана в logs/errors.log',
-                peer_id=config['user_id'],
+                peer_id=config['VK']['user_id'],
                 random_id=0
             )

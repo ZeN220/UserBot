@@ -31,7 +31,7 @@ async def set_my_id(api_ctx: APIOptionsRequestContext) -> None:
 async def send_message_to_me(message: str, **kwargs):
     await bot.api_context.messages.send(
         message=message,
-        peer_id=config['user_id'],
+        peer_id=config['VK']['user_id'],
         random_id=0,
         **kwargs
     )
