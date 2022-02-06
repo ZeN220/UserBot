@@ -19,12 +19,13 @@ qiwi_phone = 0
 
 [commands]
 social = true
-system = true
+dev = true
 messages = true
 to_delete = true
 get_balance = true
 payment = false
 logger = true
+template = true
 
 [logger]
 delete_notification = false
