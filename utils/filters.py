@@ -8,6 +8,9 @@ class TemplateFilter(BaseFilter):
         templates = toml.load('templates.toml')
         for template in templates.keys():
             if f'.{template}' == event.object.object.text:
-                event['answer'] = templates[template]
+                event['answer'] = {
+                    'text': templates[template]['text'],
+                    'attachments': templates[template]['attachments']
+                }
                 return FilterResult(True)
         return FilterResult(False)

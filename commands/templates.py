@@ -1,13 +1,16 @@
+from typing import List
+
 from vkwave.bots import (
     TextStartswithFilter,
     SimpleUserEvent,
     ReplyMessageFilter,
     MessageArgsFilter,
-    TextFilter
+    TextFilter,
+    PhotoUploader
 )
 import toml
 
-from utils import send_message_to_me, TemplateFilter
+from utils import send_message_to_me, TemplateFilter, config
 from dispatching import Router
 
 
@@ -24,14 +27,25 @@ template_router = Router(
 )
 async def add_template(event: SimpleUserEvent):
     templates = toml.load('templates.toml')
+    uploader = PhotoUploader(event.api_ctx)
 
     name = event['args'][0]
-    text = (await event.api_ctx.messages.get_by_id(
+    template = (await event.api_ctx.messages.get_by_id(
         message_ids=event.object.object.message_id
-    )).response.items[0].reply_message.text
+    )).response.items[0].reply_message
+
+    attachments: List[str] = []
+
+    for attachment in template.attachments:
+        url = max(attachment.photo.sizes, key=lambda pic: pic.height).url
+        attachment_id = await uploader.get_attachment_from_link(
+            peer_id=config['VK']['user_id'],
+            link=url
+        )
+        attachments.append(attachment_id)
 
     templates.update(
-        {name: text}
+        {name: {'text': template.text, 'attachments': attachments}}
     )
     toml.dump(templates, open('templates.toml', 'w', encoding='utf-8'))
 
@@ -43,9 +57,10 @@ async def add_template(event: SimpleUserEvent):
 )
 async def send_template(event: SimpleUserEvent):
     await event.api_ctx.messages.edit(
-        message=event['answer'],
+        message=event['answer']['text'],
         message_id=event.object.object.message_id,
-        peer_id=event.peer_id
+        peer_id=event.peer_id,
+        attachment=event['answer']['attachments']
     )
 
 
@@ -54,7 +69,9 @@ async def send_template(event: SimpleUserEvent):
 )
 async def get_templates(event: SimpleUserEvent):
     templates = toml.load('templates.toml')
-    answer = [f'{name}: {text}\n' for name, text in templates.items()]
+    answer = []
+    for template in templates.items():
+        answer.append(f'{template[0]}: {template[1]["text"]}\n')
     answer = '\n'.join(answer)
 
     await send_message_to_me(
