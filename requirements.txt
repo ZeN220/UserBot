@@ -1,4 +1,4 @@
-vkwave==0.2.13
+git+https://github.com/fscdev/vkwave#egg=vkwave
 aiogram==2.17.1
 toml==0.10.2
 tortoise-orm==0.18.0
