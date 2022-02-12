@@ -227,6 +227,7 @@ async def delete_message(event: SimpleUserEvent):
     EventTypeFilter(4),
     FromGroupFilter(False),
     ~PeerIdFilter(blacklist_chats),
+    FromMeFilter(False),
     ~StickerFilter()
 )
 async def logging(event: SimpleUserEvent):
