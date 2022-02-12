@@ -7,8 +7,9 @@ class TemplateFilter(BaseFilter):
     async def check(self, event: UserEvent) -> FilterResult:
         templates = toml.load('templates.toml')
         for template in templates.keys():
-            if f'.{template}' == event.object.object.text:
+            if event.object.object.text.startswith(f'.{template}'):
                 event['answer'] = {
+                    'name': template,
                     'text': templates[template]['text'],
                     'attachments': templates[template]['attachments']
                 }

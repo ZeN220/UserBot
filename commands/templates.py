@@ -1,4 +1,5 @@
 from typing import List
+import re
 
 from vkwave.bots import (
     TextStartswithFilter,
@@ -56,11 +57,13 @@ async def add_template(event: SimpleUserEvent):
     TemplateFilter()
 )
 async def send_template(event: SimpleUserEvent):
+    template = event["answer"]
+    message_text = event.text[len(template['name']) + 1:]
     await event.api_ctx.messages.edit(
-        message=event['answer']['text'],
+        message=template['text'] + message_text,
         message_id=event.object.object.message_id,
         peer_id=event.peer_id,
-        attachment=event['answer']['attachments'],
+        attachment=template['attachments'],
         keep_forward_messages=1
     )
 
