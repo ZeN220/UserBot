@@ -169,7 +169,7 @@ async def delete_message(event: SimpleUserEvent):
         message_id=message_id
     ).values('text', 'attachments', 'user_id')
     if find_message:
-        attachments_from_delete_message = find_message['attachments']
+        attachments_from_delete_message: str = find_message['attachments']
         user_id = find_message['user_id']
         text = find_message['text']
         user_data = (await event.api_ctx.users.get(
@@ -188,6 +188,7 @@ async def delete_message(event: SimpleUserEvent):
 
         if event.object.object.event_id == 5:
             edit_history = (await Message.get(message_id=message_id).values('edit_history'))['edit_history']
+                # type: ignore
             if edit_history:
                 edit_history += f' -> {event.text}'
             else:
@@ -222,12 +223,11 @@ async def delete_message(event: SimpleUserEvent):
         delete_or_edit.clear()
 
 
-@logger.message_handler(
+@logger.handler(
     EventTypeFilter(4),
     FromGroupFilter(False),
     ~PeerIdFilter(blacklist_chats),
-    FromMeFilter(False),
-    StickerFilter(False)
+    ~StickerFilter()
 )
 async def logging(event: SimpleUserEvent):
     attachments: List[str] = []
