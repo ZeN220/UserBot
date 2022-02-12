@@ -60,7 +60,8 @@ async def send_template(event: SimpleUserEvent):
         message=event['answer']['text'],
         message_id=event.object.object.message_id,
         peer_id=event.peer_id,
-        attachment=event['answer']['attachments']
+        attachment=event['answer']['attachments'],
+        keep_forward_messages=1
     )
 
 
