@@ -11,8 +11,8 @@ from vkwave.bots import (
 )
 import toml
 
-from utils import send_message_to_me, TemplateFilter, config
-from dispatching import Router
+from utils import send_message_to_me, config
+from dispatching import Router, TemplateFilter
 
 
 template_router = Router(
