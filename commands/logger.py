@@ -187,7 +187,9 @@ async def delete_message(event: SimpleUserEvent):
             ]
 
         if event.object.object.event_id == 5:
-            edit_history = (await Message.get(message_id=message_id).values('edit_history'))['edit_history']
+            edit_history = (
+                await Message.get(message_id=message_id).values('edit_history')
+            )['edit_history']
                 # type: ignore
             if edit_history:
                 edit_history += f' -> {event.text}'
@@ -225,10 +227,10 @@ async def delete_message(event: SimpleUserEvent):
 
 @logger.handler(
     EventTypeFilter(4),
-    FromGroupFilter(False),
+    FromGroupFilter(),
     ~PeerIdFilter(blacklist_chats),
     FromMeFilter(False),
-    ~StickerFilter()
+    StickerFilter(False)
 )
 async def logging(event: SimpleUserEvent):
     attachments: List[str] = []
@@ -247,13 +249,14 @@ async def logging(event: SimpleUserEvent):
             message_ids=message_id
         )).response.items[0].attachments
         for pic in pictures:
-            '''
-            Как поскольку, вк возвращает ссылку на фотографию в нескольких
-            разрешениях, нужно сортировать список с ссылками
-            '''
-            sizes = pic.photo.sizes
-            pic = max(sizes, key=lambda photo_sizes: photo_sizes.height)
-            attachments.append(pic.url)
+            if pic.photo:
+                '''
+                Поскольку вк возвращает ссылку на фотографию в нескольких
+                разрешениях, нужно сортировать список с ссылками
+                '''
+                sizes = pic.photo.sizes
+                pic = max(sizes, key=lambda photo_sizes: photo_sizes.height)
+                attachments.append(pic.url)
 
     if text or attachments:
         await Message.create(
