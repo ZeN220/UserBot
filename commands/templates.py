@@ -7,7 +7,8 @@ from vkwave.bots import (
     ReplyMessageFilter,
     MessageArgsFilter,
     TextFilter,
-    PhotoUploader
+    PhotoUploader,
+    FromMeFilter,
 )
 import toml
 
@@ -19,6 +20,7 @@ template_router = Router(
     'template',
     'Команды, для управления шаблонами'
 )
+template_router.registrar.add_default_filter(FromMeFilter(True))
 
 
 @template_router.message_handler(
