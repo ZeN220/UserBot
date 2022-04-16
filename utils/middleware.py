@@ -10,4 +10,4 @@ class Middleware(BaseMiddleware):
         if event.object is None:
             return MiddlewareResult(False)
         needed_events: set = {event.object.object.event_id} & {4, 5, 2}
-        return MiddlewareResult(not not needed_events)
+        return MiddlewareResult(bool(needed_events))
