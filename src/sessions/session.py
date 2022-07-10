@@ -55,6 +55,10 @@ class Session:
         group = Group.create_from_token(bot_token)
         return cls(user=user, group=group, commands_prefix=commands_prefix, is_main=is_main)
 
+    async def close_session(self) -> None:
+        await self.user.api_context.api_options.get_client().close()
+        await self.group.api_context.api_options.get_client().close()
+
     @property
     def owner_id(self) -> int:
         return self.user.owner_id

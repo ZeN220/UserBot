@@ -37,3 +37,9 @@ class SessionManager:
             f'Основная сессия [{cls.main_session.owner_id}] уже инициализирована, '
             f'поэтому [{session.owner_id}] игнорируется.'
         )
+
+    @classmethod
+    async def close_sessions(cls):
+        await cls.main_session.close_session()
+        for session in cls.sessions:
+            await session.close_session()
