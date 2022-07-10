@@ -15,7 +15,7 @@ class SessionManager:
         for session in cls.sessions:
             if session == other_session:
                 return True
-        return False
+        return cls.main_session and cls.main_session == other_session
 
     @classmethod
     def add_session(cls, session: Session) -> None:
