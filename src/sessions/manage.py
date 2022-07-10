@@ -39,7 +39,7 @@ class SessionManager:
         )
 
     @classmethod
-    async def close_sessions(cls):
+    async def close_sessions(cls) -> None:
         await cls.main_session.close_session()
         for session in cls.sessions:
             await session.close_session()
