@@ -1,0 +1,19 @@
+[VK]
+user_token = ""
+bot_token = ""
+
+[modules]
+social = true
+dev = true
+messages = true
+to_delete = true
+logger = true
+template = true
+
+[to_delete]
+to_delete_trigger = ["дд"]
+to_delete_argument = "-"
+
+[logger]
+delete_notification = false
+edit_notification = false
