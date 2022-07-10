@@ -18,17 +18,17 @@ class SessionManager:
         return cls.main_session and cls.main_session == other_session
 
     @classmethod
-    def add_session(cls, session: Session) -> None:
+    def add_session(cls, session: Session, is_main: Optional[bool] = False) -> None:
         duplicate = cls.is_duplicate(session)
         if duplicate:
             logger.warning(f'Сессия [{session.owner_id}] игнорируется из-за имеющегося дубликата')
             return
 
-        if not session.is_main:
+        if not is_main:
             cls.sessions.append(session)
             logger.info(f'Сессия [{session.owner_id}] успешно инициализирована.')
             return
-        elif session.is_main and not cls.main_session:
+        elif is_main and not cls.main_session:
             cls.main_session = session
             logger.info(f'Сессия [{session.owner_id}] успешно инициализирована как основная.')
             return

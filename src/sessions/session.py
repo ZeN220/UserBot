@@ -41,7 +41,6 @@ class Session:
     user: User
     group: Group
     commands_prefix: str
-    is_main: bool
 
     @classmethod
     async def create_from_tokens(
@@ -49,11 +48,10 @@ class Session:
         user_token: str,
         bot_token: str,
         commands_prefix: str,
-        is_main: bool
     ) -> 'Session':
         user = await User.create_from_token(user_token)
         group = Group.create_from_token(bot_token)
-        return cls(user=user, group=group, commands_prefix=commands_prefix, is_main=is_main)
+        return cls(user=user, group=group, commands_prefix=commands_prefix)
 
     async def close_session(self) -> None:
         await self.user.api_context.api_options.get_client().close()
