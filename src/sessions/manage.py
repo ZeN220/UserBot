@@ -39,6 +39,11 @@ class SessionManager:
         )
 
     @classmethod
+    def add_many_sessions(cls, sessions: List[Session]) -> None:
+        for session in sessions:
+            cls.add_session(session)
+
+    @classmethod
     async def close_sessions(cls) -> None:
         await cls.main_session.close_session()
         for session in cls.sessions:
