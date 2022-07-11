@@ -45,6 +45,7 @@ class SessionManager:
 
     @classmethod
     async def close_sessions(cls) -> None:
-        await cls.main_session.close_session()
+        if cls.main_session:
+            await cls.main_session.close_session()
         for session in cls.sessions:
             await session.close_session()
