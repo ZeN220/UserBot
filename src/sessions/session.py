@@ -62,4 +62,4 @@ class Session:
         return self.user.owner_id
 
     def __eq__(self, other_session: 'Session') -> bool:
-        return self.user.token == other_session.user.token
+        return self.user.token == other_session.user.token or self.owner_id == other_session.owner_id
