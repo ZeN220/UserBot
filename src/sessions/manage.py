@@ -18,6 +18,13 @@ class SessionManager:
         return cls.main_session and cls.main_session == other_session
 
     @classmethod
+    def get_session_from_user_token(cls, user_token: str) -> Optional[Session]:
+        for session in cls.sessions:
+            if session.user.token == user_token:
+                return session
+        return
+
+    @classmethod
     def add_session(cls, session: Session, is_main: Optional[bool] = False) -> None:
         duplicate = cls.is_duplicate(session)
         if duplicate:
