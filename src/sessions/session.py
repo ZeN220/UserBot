@@ -57,6 +57,13 @@ class Session:
         await self.user.api_context.api_options.get_client().close()
         await self.group.api_context.api_options.get_client().close()
 
+    async def send_service_message(self, text: str):
+        await self.group.api_context.messages.send(
+            peer_id=self.owner_id,
+            random_id=0,
+            message=text
+        )
+
     @property
     def owner_id(self) -> int:
         return self.user.owner_id
