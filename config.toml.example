@@ -1,6 +1,7 @@
-[VK]
+[vk]
 user_token = ""
 bot_token = ""
+commands_prefix = '.'
 
 [modules]
 social = true
@@ -17,3 +18,11 @@ to_delete_argument = "-"
 [logger]
 delete_notification = false
 edit_notification = false
+
+# Для разработчиков
+[database]
+url = 'sqlite://database.sqlite'
+
+[logging]
+level = 20
+format = '[%(levelname)s] %(asctime)s - %(name)s - %(message)s'
