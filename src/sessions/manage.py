@@ -1,31 +1,32 @@
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 import logging
 
-from .session import Session
+if TYPE_CHECKING:
+    from .session import Session
 
 logger = logging.getLogger(__name__)
 
 
 class SessionManager:
-    main_session: Optional[Session] = None
-    sessions: List[Session] = []
+    main_session: Optional['Session'] = None
+    sessions: List['Session'] = []
 
     @classmethod
-    def is_duplicate(cls, other_session: Session) -> bool:
+    def is_duplicate(cls, other_session: 'Session') -> bool:
         for session in cls.sessions:
             if session == other_session:
                 return True
         return cls.main_session and cls.main_session == other_session
 
     @classmethod
-    def get_session_from_user_token(cls, user_token: str) -> Optional[Session]:
+    def get_session_from_user_token(cls, user_token: str) -> Optional['Session']:
         for session in cls.sessions:
             if session.user.token == user_token:
                 return session
         return
 
     @classmethod
-    def add_session(cls, session: Session, is_main: Optional[bool] = False) -> None:
+    def add_session(cls, session: 'Session', is_main: Optional[bool] = False) -> None:
         duplicate = cls.is_duplicate(session)
         if duplicate:
             logger.warning(f'Сессия [{session.owner_id}] игнорируется из-за имеющегося дубликата')
@@ -46,9 +47,14 @@ class SessionManager:
         )
 
     @classmethod
-    def add_many_sessions(cls, sessions: List[Session]) -> None:
+    def add_many_sessions(cls, sessions: List['Session']) -> None:
         for session in sessions:
             cls.add_session(session)
+
+    @classmethod
+    def delete_session(cls, session: 'Session') -> None:
+        cls.sessions.remove(session)
+        logger.info(f'Сессия [{session.owner_id}] была успешно удалена.')
 
     @classmethod
     async def close_sessions(cls) -> None:
