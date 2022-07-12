@@ -1,7 +1,11 @@
 from dataclasses import dataclass
+from typing import Optional
 
+from vkwave.api.methods._error import ErrorDispatcher
 from vkwave.api.token.token import UserSyncSingleToken, BotSyncSingleToken, Token
 from vkwave.api import APIOptionsRequestContext, API
+
+from src.api import ERROR_HANDLERS, default_error_handler
 
 
 @dataclass
@@ -11,9 +15,18 @@ class User:
     api_context: APIOptionsRequestContext
 
     @classmethod
-    async def create_from_token(cls, user_token: str) -> 'User':
+    async def create_from_token(
+        cls,
+        user_token: str,
+        error_dispatcher: Optional[ErrorDispatcher] = None
+    ) -> 'User':
+        if error_dispatcher is None:
+            error_dispatcher = ErrorDispatcher()
+            error_dispatcher.handlers = ERROR_HANDLERS
+            error_dispatcher.set_default_error_handler(default_error_handler)
+
         token = UserSyncSingleToken(Token(user_token))
-        api_context = API(tokens=token).get_context()
+        api_context = API(tokens=token, error_dispatcher=error_dispatcher).get_context()
 
         user_profile = await api_context.users.get()
         owner_id = user_profile.response[0].id
