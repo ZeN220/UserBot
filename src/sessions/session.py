@@ -83,8 +83,7 @@ class Session:
 
     async def run_polling(self) -> None:
         longpoll = LongPoll(self)
-        await longpoll.run()
-        logger.info(f'LongPoll для сессии [{self.owner_id}] успешно запущен.')
+        await longpoll.start()
 
     @property
     def owner_id(self) -> int:

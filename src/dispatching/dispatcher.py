@@ -34,12 +34,12 @@ class Dispatcher:
         self.routers.append(router)
 
     async def process_event(
-        self, revent: ExtensionEvent
+        self, raw_event: list
     ) -> ProcessingResult:
-        logger.debug(f"New event! Raw:\n{revent}")
+        logger.debug(f"New event! Raw:\n{raw_event}")
 
-        revent.raw_event = cast(list, revent.raw_event)
-        obj = get_event_object(revent.raw_event)
+        raw_event = cast(list, raw_event)
+        obj = get_event_object(raw_event)
         event = UserEvent(obj, self.api_context, self.session)
         print(event)
 
