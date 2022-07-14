@@ -1,11 +1,15 @@
+import logging
 from dataclasses import dataclass
 from typing import Optional
 
+from vkwave.api import APIOptionsRequestContext, API
 from vkwave.api.methods._error import ErrorDispatcher
 from vkwave.api.token.token import UserSyncSingleToken, BotSyncSingleToken, Token
-from vkwave.api import APIOptionsRequestContext, API
 
 from src.api import ERROR_HANDLERS, default_error_handler
+from src.dispatching import LongPoll
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -70,12 +74,17 @@ class Session:
         await self.user.api_context.api_options.get_client().close()
         await self.group.api_context.api_options.get_client().close()
 
-    async def send_service_message(self, text: str):
+    async def send_service_message(self, text: str) -> None:
         await self.group.api_context.messages.send(
             peer_id=self.owner_id,
             random_id=0,
             message=text
         )
+
+    async def run_polling(self) -> None:
+        longpoll = LongPoll(self)
+        await longpoll.run()
+        logger.info(f'LongPoll для сессии [{self.owner_id}] успешно запущен.')
 
     @property
     def owner_id(self) -> int:

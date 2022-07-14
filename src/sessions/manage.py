@@ -1,6 +1,8 @@
 from typing import List, Optional, TYPE_CHECKING, NoReturn, Union
 import logging
+import asyncio
 
+from src.dispatching import LongPoll
 from .errors import UndefinedSessionError
 
 if TYPE_CHECKING:
@@ -57,6 +59,14 @@ class SessionManager:
     def delete_session(cls, session: 'Session') -> None:
         cls.sessions.remove(session)
         logger.info(f'Сессия [{session.owner_id}] была успешно удалена.')
+
+    @classmethod
+    async def run_all_polling(cls) -> None:
+        loop = asyncio.get_running_loop()
+        if cls.main_session:
+            loop.create_task(cls.main_session.run_polling())
+        for session in cls.sessions:
+            loop.create_task(session.run_polling())
 
     @classmethod
     async def close_sessions(cls) -> None:
