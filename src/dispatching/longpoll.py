@@ -3,7 +3,7 @@ import logging
 import traceback
 from typing import TYPE_CHECKING
 
-from vkwave.bots.core.dispatching.extensions import UserLongpollExtension, UserLongpoll
+from vkwave.bots.core.dispatching.extensions import UserLongpoll
 from vkwave.longpoll import UserLongpollData
 
 from .dispatcher import Dispatcher
@@ -28,17 +28,15 @@ class LongPoll:
         self.dispatcher = Dispatcher(
             api_context=self.api_context, session=session, result_caster=self.result_caster
         )
-        self.lp = UserLongpoll(api=self.api_context, bot_longpoll_data=UserLongpollData())
-        self.longpoll = UserLongpollExtension(self.dispatcher, self.lp)
+        self.longpoll = UserLongpoll(api=self.api_context, bot_longpoll_data=UserLongpollData())
 
     async def start(self):
         loop = asyncio.get_running_loop()
         logger.info(f'LongPoll для сессии [{self.session.owner_id}] успешно запущен.')
         while True:
             try:
-                events = await self.lp.get_updates()
+                events = await self.longpoll.get_updates()
                 for event in events:
-                    print(event)
                     loop.create_task(
                         self.dispatcher.process_event(event)
                     )
