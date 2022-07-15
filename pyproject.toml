@@ -6,9 +6,9 @@ authors = ["ZeN220 <hidden@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-vkwave = "^0.2.17"
 tortoise-orm = "^0.19.2"
 toml = "^0.10.2"
+vkwave = {git = "https://github.com/fscdev/vkwave.git", rev = "master"}
 
 [tool.poetry.dev-dependencies]
 
