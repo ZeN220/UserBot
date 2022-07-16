@@ -8,7 +8,6 @@ from vkwave.longpoll import UserLongpollData
 
 if TYPE_CHECKING:
     from src.sessions import Session
-    from .dispatcher import Dispatcher
 
 logger = logging.getLogger(__name__)
 
