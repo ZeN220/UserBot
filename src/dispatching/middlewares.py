@@ -20,6 +20,7 @@ class MessageMiddleware(BaseMiddleware):
 
 class FromMeMiddleware(BaseMiddleware):
     async def pre_process_event(self, event: UserEvent) -> MiddlewareResult:
+        # В списке флагов события последним элементом является сумма всех флагов, поэтому тут используется битовое "И"
         is_from_me = event.object.object.flags[-1] & MessageFlag.OUTBOX.value
         return MiddlewareResult(bool(is_from_me))
 
