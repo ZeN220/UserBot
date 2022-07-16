@@ -2,7 +2,6 @@ from typing import List, Optional, TYPE_CHECKING, NoReturn, Union
 import logging
 import asyncio
 
-from src.dispatching import LongPoll
 from .errors import UndefinedSessionError
 
 if TYPE_CHECKING:
