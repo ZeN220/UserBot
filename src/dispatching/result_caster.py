@@ -27,7 +27,7 @@ class ResultCaster(BaseResultCaster):
         await handler(result, event)
 
 
-async def none_caster(none_value, event: UserEvent):
+async def none_caster(_, event: UserEvent):
     pass
 
 
@@ -35,3 +35,9 @@ async def command_response_caster(command_response: 'CommandResponse', event: Us
     """
     TODO: Написать реализацию для CommandResponse
     """
+
+
+CASTERS = {
+    type(None): none_caster,
+    ...: command_response_caster
+}
