@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from vkwave.api import APIOptionsRequestContext, API
 from vkwave.api.methods._error import ErrorDispatcher
@@ -8,6 +8,9 @@ from vkwave.api.token.token import UserSyncSingleToken, BotSyncSingleToken, Toke
 
 from src.api import ERROR_HANDLERS, default_error_handler
 from src.dispatching import LongPoll
+
+if TYPE_CHECKING:
+    from src.dispatching import Dispatcher
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +61,7 @@ class Session:
     user: User
     group: Group
     commands_prefix: str
+    dispatcher: 'Dispatcher'
 
     @classmethod
     async def create_from_tokens(
@@ -65,10 +69,13 @@ class Session:
         user_token: str,
         bot_token: str,
         commands_prefix: str,
+        dispatcher: 'Dispatcher'
     ) -> 'Session':
         user = await User.create_from_token(user_token)
         group = Group.create_from_token(bot_token)
-        return cls(user=user, group=group, commands_prefix=commands_prefix)
+        return cls(
+            user=user, group=group, commands_prefix=commands_prefix, dispatcher=dispatcher
+        )
 
     async def close_session(self) -> None:
         await self.user.api_context.api_options.get_client().close()
