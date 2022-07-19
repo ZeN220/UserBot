@@ -96,5 +96,8 @@ class Session:
     def owner_id(self) -> int:
         return self.user.owner_id
 
+    def __hash__(self):
+        return hash(self.user.token)
+
     def __eq__(self, other_session: 'Session') -> bool:
         return self.user.token == other_session.user.token or self.owner_id == other_session.owner_id
