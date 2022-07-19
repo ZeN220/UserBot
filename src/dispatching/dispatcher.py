@@ -8,6 +8,7 @@ from vkwave.types.user_events import get_event_object
 
 if TYPE_CHECKING:
     from src.sessions import Session
+from src.database.models.template import Template
 from .event import UserEvent
 
 ProcessingResult = NewType("ProcessingResult", bool)
@@ -37,6 +38,15 @@ class Dispatcher:
 
         if not await self.middleware_manager.execute_pre_process_event(event):
             return ProcessingResult(False)
+
+        # TODO: Перенести систему шаблонов в другой модуль
+        template = await Template.get_template(event.object.object.text, session.owner_id)
+        if template:
+            await session.user.api_context.messages.edit(
+                message_id=event.object.object.message_id, peer_id=event.object.object.peer_id,
+                keep_forward_messages=1, **template
+            )
+
         for router in self.routers:
             if await router.is_suitable(event):
                 result = await router.process_event(event)
