@@ -22,7 +22,7 @@ class LongPoll:
 
     async def start(self):
         loop = asyncio.get_running_loop()
-        logger.info(f'LongPoll для сессии [{self.session.owner_id}] успешно запущен.')
+        logger.debug(f'LongPoll для сессии [{self.session.owner_id}] успешно запущен.')
         while True:
             try:
                 events = await self.longpoll.get_updates()
