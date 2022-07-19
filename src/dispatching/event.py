@@ -9,6 +9,6 @@ if TYPE_CHECKING:
 
 
 class UserEvent(VKWaveUserEvent):
-    def __init__(self, object_: BaseUserEvent, api_ctx: APIOptionsRequestContext, session: 'Session'):
-        super().__init__(object=object_, api_ctx=api_ctx)
+    def __init__(self, object_: BaseUserEvent, session: 'Session'):
+        super().__init__(object=object_, api_ctx=session.user.api_context)
         self.session = session

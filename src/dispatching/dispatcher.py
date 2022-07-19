@@ -31,7 +31,7 @@ class Dispatcher:
 
         raw_event = cast(list, raw_event)
         obj = get_event_object(raw_event)
-        event = UserEvent(obj, session.user.api_context, session)
+        event = UserEvent(obj, session)
 
         logger.debug(f"New event! Formatted:\n{event}")
 
