@@ -26,7 +26,7 @@ class SessionManager:
         for session in cls.sessions:
             if session.user.token == user_token:
                 return session
-        raise UndefinedSessionError(f'Session with access token {user_token} is undefined')
+        raise UndefinedSessionError(user_token)
 
     @classmethod
     def add_session(cls, session: 'Session', is_main: Optional[bool] = False) -> None:
