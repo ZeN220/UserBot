@@ -1,8 +1,10 @@
-from typing import Type, Any, Callable, Awaitable, Dict
+from typing import Type, Any, Callable, Awaitable, Dict, TYPE_CHECKING
 import logging
 
 from vkwave.bots.core.dispatching.dp import BaseResultCaster
 
+if TYPE_CHECKING:
+    from src.commands import CommandResponse
 from .event import UserEvent
 
 logger = logging.getLogger(__name__)
@@ -32,9 +34,13 @@ async def none_caster(_, event: UserEvent):
 
 
 async def command_response_caster(command_response: 'CommandResponse', event: UserEvent):
-    """
-    TODO: Написать реализацию для CommandResponse
-    """
+    session = event.session
+    group_api_context = session.group.api_context
+    response = command_response.response
+    await group_api_context.messages.send(
+        peer_id=session.owner_id, random_id=0,
+        message=response
+    )
 
 
 CASTERS = {

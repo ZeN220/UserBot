@@ -62,6 +62,7 @@ class Session:
     group: Group
     commands_prefix: str
     dispatcher: 'Dispatcher'
+    delete_command_after: bool = True
 
     @classmethod
     async def create_from_tokens(
@@ -69,12 +70,14 @@ class Session:
         user_token: str,
         bot_token: str,
         commands_prefix: str,
+        delete_command_after: bool,
         dispatcher: 'Dispatcher'
     ) -> 'Session':
         user = await User.create_from_token(user_token)
         group = Group.create_from_token(bot_token)
         return cls(
-            user=user, group=group, commands_prefix=commands_prefix, dispatcher=dispatcher
+            user=user, group=group, commands_prefix=commands_prefix,
+            dispatcher=dispatcher, delete_command_after=delete_command_after
         )
 
     async def close_session(self) -> None:
