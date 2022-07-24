@@ -16,7 +16,7 @@ class Command:
         aliases: List[str],
         handler: Type['BaseHandler'],
         priority: int,
-        pattern: Union[str, re.Pattern],
+        args_syntax: Union[str, re.Pattern],
         filters: Optional[List['BaseFilter']] = None,
     ):
         self.name = name
@@ -25,7 +25,7 @@ class Command:
         self.handler = handler
         self.priority = priority
         self.filters = filters if filters else []
-        self.pattern = re.compile(pattern) if isinstance(pattern, str) else pattern
+        self.pattern = re.compile(args_syntax) if isinstance(args_syntax, str) else args_syntax
 
     async def check_filters(self, event: 'UserEvent') -> Tuple[bool, dict]:
         context = {}

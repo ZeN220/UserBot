@@ -35,13 +35,13 @@ class CommandManager:
         module: str,
         aliases: List[str],
         priority: int,
-        pattern: Union[str, 're.Pattern'],
+        args_syntax: Union[str, 're.Pattern'],
         filters: Optional[List['BaseFilter']] = None,
     ):
         def decorator(handler: Type['BaseHandler']):
             command = Command(
                 name=name, module=module, aliases=aliases,
-                priority=priority, pattern=pattern, filters=filters,
+                priority=priority, args_syntax=args_syntax, filters=filters,
                 handler=handler
             )
             cls.commands.append(command)
