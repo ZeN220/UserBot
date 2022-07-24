@@ -3,11 +3,11 @@ import logging
 
 from src.commands.base import CommandManager
 from src.config import Config
-from src.database import SessionModel, connect_database
+from src.database import connect_database
 from src.dispatching import Dispatcher
 from src.dispatching.middlewares import MIDDLEWARES
 from src.dispatching.result_caster import ResultCaster, CASTERS
-from src.sessions import Session, SessionManager
+from src.sessions import Session, SessionManager, SessionsFile
 from src.routers import setup_router
 
 
@@ -23,27 +23,26 @@ async def main():
 
     await connect_database(config.database.url)
 
-    # TODO: Переписать говнокод для получениях активных модулей из сессии
-    activate_modules = list(filter(lambda module: getattr(config.modules, module),  config.modules.keys()))
-    # Получаем список возможных модулей из полей конфига
-    CommandManager.modules = list(config.modules.keys())
-
     owner_session = await Session.create_from_tokens(
         user_token=config.vk.user_token,
-        bot_token=config.vk.bot_token,
+        group_token=config.vk.bot_token,
         commands_prefix=config.vk.commands_prefix,
-        dispatcher=dispatcher,
+        dispatcher=dispatcher, modules=config.modules,
         delete_command_after=config.vk.delete_command_after
     )
-    sessions_from_database = await SessionModel.create_all_sessions(dispatcher=dispatcher)
+    sessions_from_file = SessionsFile('sessions.toml')
+    sessions = []
+    for session in sessions_from_file.get_sessions():
+        session = await Session.create_from_tokens(**session, dispatcher=dispatcher)
+        sessions.append(session)
 
     CommandManager.setup_commands()
-    await CommandManager.setup_commands_session(owner_session, modules=activate_modules)
-    for session in sessions_from_database:
+    await CommandManager.setup_commands_session(owner_session)
+    for session in sessions:
         await CommandManager.setup_commands_session(session)
 
     SessionManager.add_session(owner_session, is_main=True)
-    SessionManager.add_many_sessions(sessions_from_database)
+    SessionManager.add_many_sessions(sessions)
 
     await SessionManager.run_all_polling()
 
