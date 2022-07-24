@@ -6,7 +6,7 @@ from vkwave.api.methods._error import ErrorDispatcher
 from vkwave.api.token.token import UserSyncSingleToken, BotSyncSingleToken, Token
 from pydantic import BaseModel
 
-from src.api import ERROR_HANDLERS, default_error_handler
+from src.api import ERROR_HANDLERS, default_error_handler, GROUP_ERROR_HANDLERS
 from src.dispatching import LongPoll, Dispatcher
 
 logger = logging.getLogger(__name__)
@@ -49,9 +49,14 @@ class Group(BaseModel):
     api_context: APIOptionsRequestContext
 
     @classmethod
-    def create_from_token(cls, bot_token: str) -> 'Group':
+    def create_from_token(cls, bot_token: str, error_dispatcher: Optional['ErrorDispatcher'] = None) -> 'Group':
+        if error_dispatcher is None:
+            error_dispatcher = ErrorDispatcher()
+            error_dispatcher.handlers = GROUP_ERROR_HANDLERS
+            error_dispatcher.set_default_error_handler(default_error_handler)
+
         token = BotSyncSingleToken(Token(bot_token))
-        api_context = API(tokens=token).get_context()
+        api_context = API(tokens=token, error_dispatcher=error_dispatcher).get_context()
         return cls(api_context=api_context)
 
     class Config:
