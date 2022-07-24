@@ -1,22 +1,18 @@
 import logging
-from dataclasses import dataclass
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, Dict
 
 from vkwave.api import APIOptionsRequestContext, API
 from vkwave.api.methods._error import ErrorDispatcher
 from vkwave.api.token.token import UserSyncSingleToken, BotSyncSingleToken, Token
+from pydantic import BaseModel
 
 from src.api import ERROR_HANDLERS, default_error_handler
-from src.dispatching import LongPoll
-
-if TYPE_CHECKING:
-    from src.dispatching import Dispatcher
+from src.dispatching import LongPoll, Dispatcher
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class User:
+class User(BaseModel):
     owner_id: int
     token: str
     api_context: APIOptionsRequestContext
@@ -44,9 +40,12 @@ class User:
             api_context=api_context
         )
 
+    class Config:
+        arbitrary_types_allowed = True
+        copy_on_model_validation = False
 
-@dataclass
-class Group:
+
+class Group(BaseModel):
     api_context: APIOptionsRequestContext
 
     @classmethod
@@ -55,29 +54,34 @@ class Group:
         api_context = API(tokens=token).get_context()
         return cls(api_context=api_context)
 
+    class Config:
+        arbitrary_types_allowed = True
+        copy_on_model_validation = False
 
-@dataclass
-class Session:
+
+class Session(BaseModel):
     user: User
     group: Group
     commands_prefix: str
-    dispatcher: 'Dispatcher'
-    delete_command_after: bool = True
+    dispatcher: Dispatcher
+    modules: Dict[str, bool]
+    delete_command_after: bool
 
     @classmethod
     async def create_from_tokens(
         cls,
         user_token: str,
-        bot_token: str,
+        group_token: str,
         commands_prefix: str,
-        delete_command_after: bool,
-        dispatcher: 'Dispatcher'
+        dispatcher: 'Dispatcher',
+        modules: Dict[str, bool],
+        delete_command_after: Optional[bool] = True
     ) -> 'Session':
         user = await User.create_from_token(user_token)
-        group = Group.create_from_token(bot_token)
+        group = Group.create_from_token(group_token)
         return cls(
             user=user, group=group, commands_prefix=commands_prefix,
-            dispatcher=dispatcher, delete_command_after=delete_command_after
+            dispatcher=dispatcher, delete_command_after=delete_command_after, modules=modules
         )
 
     async def close_session(self) -> None:
@@ -104,3 +108,6 @@ class Session:
 
     def __eq__(self, other_session: 'Session') -> bool:
         return self.user.token == other_session.user.token or self.owner_id == other_session.owner_id
+
+    class Config:
+        arbitrary_types_allowed = True
