@@ -42,17 +42,17 @@ class Command:
             if text == alias:
                 return True
 
-    async def is_suitable(self, event: 'UserEvent') -> Optional[dict]:
-        text = event.object.object.text
+    async def is_suitable(self, event: 'UserEvent') -> Tuple[bool, dict]:
+        text = event.object.object.text[1:].lstrip()
         is_command = self.check_aliases(text)
         if not is_command:
-            return
+            return False, {}
 
         result, context = await self.check_filters(event)
         if result:
-            return context
-        return
+            return result, context
+        return False, {}
 
     async def start(self, **kwargs) -> 'CommandResponse':
         handler = self.handler()
-        return await handler.run(**kwargs)
+        return await handler.execute(**kwargs)

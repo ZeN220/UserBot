@@ -2,7 +2,6 @@ import logging
 import time
 from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Type, Union
 
-from src.database import Module
 from .command import Command
 
 if TYPE_CHECKING:
@@ -18,12 +17,11 @@ logger = logging.getLogger(__name__)
 
 class CommandManager:
     commands: List[Command] = []
-    modules: List[str] = []
     commands_sessions: Dict['Session', List[Command]] = {}
 
     @classmethod
     def add_command(cls, command: Command, session: 'Session') -> None:
-        session_commands = cls.commands_sessions.get(session)
+        session_commands = cls.commands_sessions.get(session, [])
         session_commands.append(command)
         cls.commands_sessions.update({
             session: session_commands
@@ -51,13 +49,14 @@ class CommandManager:
         return decorator
 
     @classmethod
-    async def find_command(cls, event: 'UserEvent') -> Optional[Tuple[Command, dict]]:
+    async def find_command(cls, event: 'UserEvent') -> Tuple[Optional[Command], dict]:
         session = event.session
         commands = cls.commands_sessions[session]
         for command in commands:
-            result = await command.is_suitable(event)
+            result, context = await command.is_suitable(event)
             if result:
-                return command, result
+                return command, context
+        return None, {}
 
     @classmethod
     def setup_commands(cls):
@@ -68,16 +67,16 @@ class CommandManager:
         logger.info(f'Команды успешно инициализированы за {result} секунд.')
 
     @classmethod
-    async def setup_commands_session(cls, session: 'Session', modules: Optional[List[str]] = None):
+    async def setup_commands_session(cls, session: 'Session'):
         start_time = time.time()
-        if modules is None:
-            modules = await Module.get_activate_modules(session)
-
-        for module in modules:
-            # Фильтрация команд для получения только тех, чьи модули включены в сессии
-            commands = filter(lambda command: command.module == module, cls.commands)
-            for session_command in commands:
+        for session_command in cls.commands:
+            command_module = session_command.module
+            is_activate_module = session.modules.get(command_module)
+            if is_activate_module:
                 cls.add_command(session_command, session)
+            elif is_activate_module is None:
+                logger.warning(f'В сессии [{session.owner_id}] не указан модуль «{command_module}». Отредактируйте файл sessions.toml и добавьте его в список модулей.')
+
         end_time = time.time()
         result = round(end_time - start_time, 3)
         logger.info(f'Команды для сессии [{session.owner_id}] успешно инициализированы за {result} секунд.')

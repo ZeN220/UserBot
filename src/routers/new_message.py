@@ -24,7 +24,7 @@ async def send_template(event: UserEvent):
 @new_message_router.registrar.with_decorator(PrefixFilter())
 async def send_command(event: UserEvent):
     command, context = await CommandManager.find_command(event)
-    if not command:
+    if command is None:
         return
 
     session = event.session
