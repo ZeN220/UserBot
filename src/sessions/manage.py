@@ -57,15 +57,21 @@ class SessionManager:
     @classmethod
     def delete_session(cls, session: 'Session') -> None:
         cls.sessions.remove(session)
+        # Для отключения поллинга сессии, нужно получить список всех задач и по имени задачи найти нужную и отменить её.
+        loop = asyncio.get_running_loop()
+        all_tasks = asyncio.all_tasks(loop)
+        for task in all_tasks:
+            if task.get_name() == str(session.owner_id):
+                task.cancel()
+                break
         logger.info(f'Сессия [{session.owner_id}] была успешно удалена.')
 
     @classmethod
     async def run_all_polling(cls) -> None:
-        loop = asyncio.get_running_loop()
         if cls.main_session:
-            loop.create_task(cls.main_session.run_polling())
+            await cls.main_session.run_polling()
         for session in cls.sessions:
-            loop.create_task(session.run_polling())
+            await session.run_polling()
 
     @classmethod
     async def close_sessions(cls) -> None:

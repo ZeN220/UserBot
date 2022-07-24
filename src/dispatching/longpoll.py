@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import traceback
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from vkwave.bots.core.dispatching.extensions import UserLongpoll
 from vkwave.longpoll import UserLongpollData
@@ -20,7 +20,7 @@ class LongPoll:
             api=self.session.user.api_context, bot_longpoll_data=UserLongpollData()
         )
 
-    async def start(self):
+    async def _start(self):
         loop = asyncio.get_running_loop()
         logger.debug(f'LongPoll для сессии [{self.session.owner_id}] успешно запущен.')
         while True:
@@ -33,3 +33,8 @@ class LongPoll:
             except Exception as e:
                 logger.error(f"Error in Longpoll ({e}): {traceback.format_exc()}")
                 continue
+
+    async def start(self) -> asyncio.Task:
+        loop = asyncio.get_running_loop()
+        task = loop.create_task(self._start(), name=str(self.session.owner_id))
+        return task
