@@ -11,3 +11,9 @@ class Priority(IntEnum):
 
 class CommandResponse(BaseModel):
     response: str = Field(None, description='Answer of command')
+
+    def __hash__(self):
+        return hash(self)
+
+    def __eq__(self, other: 'CommandResponse'):
+        return self.response == other.response

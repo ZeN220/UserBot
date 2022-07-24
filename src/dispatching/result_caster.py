@@ -1,10 +1,9 @@
-from typing import Type, Any, Callable, Awaitable, Dict, TYPE_CHECKING
+from typing import Type, Any, Callable, Awaitable, Dict
 import logging
 
 from vkwave.bots.core.dispatching.dp import BaseResultCaster
 
-if TYPE_CHECKING:
-    from src.commands import CommandResponse
+from src.commands import CommandResponse
 from .event import UserEvent
 
 logger = logging.getLogger(__name__)
@@ -33,7 +32,7 @@ async def none_caster(_, event: UserEvent):
     pass
 
 
-async def command_response_caster(command_response: 'CommandResponse', event: UserEvent):
+async def command_response_caster(command_response: CommandResponse, event: UserEvent):
     session = event.session
     group_api_context = session.group.api_context
     response = command_response.response
@@ -45,5 +44,5 @@ async def command_response_caster(command_response: 'CommandResponse', event: Us
 
 CASTERS = {
     type(None): none_caster,
-    ...: command_response_caster
+    CommandResponse: command_response_caster
 }
