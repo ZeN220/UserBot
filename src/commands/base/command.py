@@ -1,58 +1,45 @@
-from typing import List, TYPE_CHECKING, Type, Union, Optional, Tuple
+from typing import List, TYPE_CHECKING, Type, Union, Optional
 import re
 
+from src.dispatching import UserEvent
+from .filters import BaseFilter
+from .types import CommandResponse
+from src.services import HolderGateway
+
 if TYPE_CHECKING:
-    from src.dispatching import UserEvent
-    from .filters import BaseFilter
-    from .types import CommandResponse
     from .handler import BaseHandler
 
 
 class Command:
     def __init__(
         self,
+        *filters: 'BaseFilter',
         name: str,
         module: str,
         aliases: List[str],
         handler: Type['BaseHandler'],
         priority: int,
-        args_syntax: Union[str, re.Pattern],
-        filters: Optional[List['BaseFilter']] = None,
+        args_syntax: Union[str, List[str]],
     ):
         self.name = name
         self.module = module
         self.aliases = aliases
         self.handler = handler
         self.priority = priority
-        self.filters = filters if filters else []
-        self.pattern = re.compile(args_syntax) if isinstance(args_syntax, str) else args_syntax
-
-    async def check_filters(self, event: 'UserEvent') -> Tuple[bool, dict]:
-        context = {}
-        for filter_ in self.filters:
-            response = await filter_.check(event)
-            if response.result:
-                context.update(response.context)
-                continue
-            return False, {}
-        return True, context
+        self.filters = filters
+        if isinstance(args_syntax, list):
+            self.args_syntax = [re.compile(syntax) for syntax in args_syntax]
+        else:
+            self.args_syntax = [re.compile(args_syntax)]
 
     def check_aliases(self, text: str) -> bool:
-        for alias in self.aliases:
-            if text == alias:
-                return True
+        return text.startswith(tuple(self.aliases))
 
-    async def is_suitable(self, event: 'UserEvent') -> Tuple[bool, dict]:
+    async def is_suitable(self, event: 'UserEvent') -> bool:
         text = event.object.object.text[1:].lstrip()
         is_command = self.check_aliases(text)
-        if not is_command:
-            return False, {}
+        return is_command
 
-        result, context = await self.check_filters(event)
-        if result:
-            return result, context
-        return False, {}
-
-    async def start(self, **kwargs) -> 'CommandResponse':
-        handler = self.handler()
-        return await handler.execute(**kwargs)
+    async def start(self, event: 'UserEvent', gateway: HolderGateway) -> 'CommandResponse':
+        handler = self.handler(self, gateway)
+        return await handler.run(event)
