@@ -1,6 +1,7 @@
 from enum import IntEnum
+from typing import Dict
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 
 class Priority(IntEnum):
@@ -12,8 +13,17 @@ class Priority(IntEnum):
 class CommandResponse(BaseModel):
     response: str = Field(None, description='Answer of command')
 
-    def __hash__(self):
-        return hash(self)
 
-    def __eq__(self, other: 'CommandResponse'):
-        return self.response == other.response
+class CommandArgs(BaseModel):
+    args: Dict[str, str]
+
+    @validator('args')
+    def convert_arg_to_int(cls, args: Dict[str, str]):  # noqa
+        """
+        Из-за того, что re.Pattern.groupdict() не возвращает значения словаря в виде числа,
+        пришлось создать модель для аргументов и валидировать значения в ней
+        """
+        for key, value in args.items():
+            if value.isdigit():
+                args.update({key: int(value)})
+        return args
