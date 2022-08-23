@@ -6,9 +6,11 @@ authors = ["ZeN220 <hidden@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-tortoise-orm = "^0.19.2"
 toml = "^0.10.2"
 vkwave = {git = "https://github.com/fscdev/vkwave.git", rev = "master"}
+SQLAlchemy = "^1.4.40"
+aiosqlite = "^0.17.0"
+alembic = "^1.8.1"
 
 [tool.poetry.dev-dependencies]
 

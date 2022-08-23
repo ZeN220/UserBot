@@ -1,2 +1,4 @@
-from .connector import connect_database
-from .models import Template, Attachment
+from .attachment import Attachment
+from .template import Template
+from .session import SessionModel
+from .deactivate_modules import DeactivateModule
