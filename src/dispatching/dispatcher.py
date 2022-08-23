@@ -1,7 +1,7 @@
 import logging
 from typing import List, NewType, Optional, cast, TYPE_CHECKING
 
-from vkwave.bots.core.dispatching.dp.middleware.middleware import MiddlewareManager
+from vkwave.bots.core.dispatching.dp.middleware.middleware import MiddlewareManager, BaseMiddleware
 from vkwave.bots.core.dispatching.dp.result_caster import BaseResultCaster
 from vkwave.bots.core.dispatching.router.router import HANDLER_NOT_FOUND, BaseRouter
 from vkwave.types.user_events import get_event_object
@@ -20,6 +20,9 @@ class Dispatcher:
         self.middleware_manager = MiddlewareManager()
         self.routers: List[BaseRouter] = []
         self.result_caster: BaseResultCaster = result_caster
+
+    def add_middleware(self, middleware: BaseMiddleware):
+        self.middleware_manager.add_middleware(middleware)
 
     def add_router(self, router: BaseRouter):
         self.routers.append(router)
