@@ -1,10 +1,16 @@
-from typing import TYPE_CHECKING
-
 from vkwave.bots.core.dispatching.filters.base import BaseFilter, FilterResult
 
-from src.database import Template
-if TYPE_CHECKING:
-    from .event import UserEvent
+from .event import UserEvent
+
+
+class EventTypeFilter(BaseFilter):
+    def __init__(self, *events_ids: int):
+        self.events_ids = events_ids
+
+    async def check(self, event: 'UserEvent') -> FilterResult:
+        if event.object is None:
+            return FilterResult(False)
+        return FilterResult(event.object.object.event_id in self.events_ids)
 
 
 class PrefixFilter(BaseFilter):
@@ -16,7 +22,9 @@ class PrefixFilter(BaseFilter):
 
 class TemplateFilter(BaseFilter):
     async def check(self, event: 'UserEvent') -> FilterResult:
-        template = await Template.get_template(event.object.object.text, event.session.owner_id)
+        gateway = event['gateway']
+        template = await gateway.template.get(event.object.object.text, event.session.owner_id)
         if template:
-            event['template'] = template
+            attachments = [attachment.document for attachment in template.attachments]
+            event['template'] = {'message': template.answer, 'attachment': attachments}
         return FilterResult(bool(template))
