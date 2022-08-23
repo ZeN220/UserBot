@@ -1,1 +1,1 @@
-from .new_message import setup_router
+from .new_message import new_message_router
