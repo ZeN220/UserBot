@@ -16,7 +16,7 @@ async def user_auth_failed(_, api_ctx: APIOptionsRequestContext):
     session = SessionManager.get_session_from_token(token)
 
     await session.send_service_message(
-        f'[🚪] При авторизации вашего аккаунта произошла ошибка. Ваша сессия будет автоматически удалена.'
+        f'[🚪] При авторизации с вашего аккаунта произошла ошибка. Ваша сессия будет автоматически удалена.'
     )
     SessionManager.delete_session(session)
 
