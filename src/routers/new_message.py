@@ -1,15 +1,14 @@
-from typing import TYPE_CHECKING
-
-from vkwave.bots import DefaultRouter
+from vkwave.bots import DefaultRouter, FromMeFilter
 
 from src.commands.base import CommandManager
-from src.dispatching.filters import TemplateFilter, PrefixFilter
 from src.dispatching import UserEvent
-if TYPE_CHECKING:
-    from src.dispatching import Dispatcher
+from src.dispatching.filters import TemplateFilter, PrefixFilter, EventTypeFilter
+from src.commands.base.errors import NotEnoughArgs
 
-
-new_message_router = DefaultRouter()
+# https://github.com/danyadev/longpoll-doc#%D1%81%D0%BE%D0%B1%D1%8B%D1%82%D0%B8%D0%B5-4-%D0%BD%D0%BE%D0%B2%D0%BE%D0%B5-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B5
+new_message_router = DefaultRouter(
+    [EventTypeFilter(4), FromMeFilter(True)]
+)
 
 
 @new_message_router.registrar.with_decorator(TemplateFilter())
@@ -22,8 +21,8 @@ async def send_template(event: UserEvent):
 
 
 @new_message_router.registrar.with_decorator(PrefixFilter())
-async def send_command(event: UserEvent):
-    command, context = await CommandManager.find_command(event)
+async def execute_command(event: UserEvent):
+    command = await CommandManager.find_command(event)
     if command is None:
         return
 
@@ -33,9 +32,14 @@ async def send_command(event: UserEvent):
             delete_for_all=1, message_ids=event.object.object.message_id
         )
 
-    response = await command.start(**context)
-    return response
-
-
-def setup_router(dispatcher: 'Dispatcher'):
-    dispatcher.add_router(new_message_router)
+    # TODO: Обработка ошибка NotEnoughARgs в этом месте является не лучшим решением,
+    #  ее стоит обрабатывать на более низком уровне
+    try:
+        response = await command.start(event, event['gateway'])
+    except NotEnoughArgs:
+        await event.session.send_service_message(
+            f'[⌨] При написании команды «{event.object.object.text}» '
+            f'было указано недостаточно аргументов.'
+        )
+    else:
+        return response
