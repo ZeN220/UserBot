@@ -1,13 +1,14 @@
 import logging
-from typing import Optional, Dict
+from typing import Optional, List
 
-from vkwave.api import APIOptionsRequestContext, API
-from vkwave.api.methods._error import ErrorDispatcher
-from vkwave.api.token.token import UserSyncSingleToken, BotSyncSingleToken, Token
 from pydantic import BaseModel
+from vkwave.api import APIOptionsRequestContext, API
+from vkwave.api.methods._error import ErrorDispatcher, APIError
+from vkwave.api.token.token import UserSyncSingleToken, BotSyncSingleToken, Token
 
 from src.api import ERROR_HANDLERS, default_error_handler, GROUP_ERROR_HANDLERS
 from src.dispatching import LongPoll, Dispatcher
+from .errors import InvalidSessionError
 
 logger = logging.getLogger(__name__)
 
@@ -29,16 +30,27 @@ class User(BaseModel):
             error_dispatcher.set_default_error_handler(default_error_handler)
 
         token = UserSyncSingleToken(Token(user_token))
-        api_context = API(tokens=token, error_dispatcher=error_dispatcher).get_context()
+        api = API(tokens=token)
+        api_context = api.get_context()
 
-        user_profile = await api_context.users.get()
-        owner_id = user_profile.response[0].id
+        try:
+            user_profile = await api_context.users.get()
+        except APIError as error:
+            if error.code == 5:
+                await api.default_api_options.get_client().close()
+                raise InvalidSessionError(user_token)
+            else:
+                raise APIError(error.code, error.message, error.request_params)
 
-        return cls(
-            owner_id=owner_id,
-            token=user_token,
-            api_context=api_context
-        )
+        else:
+            owner_id = user_profile.response[0].id
+            api.default_api_options.error_dispatcher = error_dispatcher
+
+            return cls(
+                owner_id=owner_id,
+                token=user_token,
+                api_context=api.get_context()
+            )
 
     class Config:
         arbitrary_types_allowed = True
@@ -69,8 +81,8 @@ class Session(BaseModel):
     group: Group
     commands_prefix: str
     dispatcher: Dispatcher
-    modules: Dict[str, bool]
-    delete_command_after: bool
+    deactivate_modules: List[str]
+    delete_command_after: Optional[bool] = True
 
     @classmethod
     async def create_from_tokens(
@@ -79,14 +91,15 @@ class Session(BaseModel):
         group_token: str,
         commands_prefix: str,
         dispatcher: 'Dispatcher',
-        modules: Dict[str, bool],
+        deactivate_modules: List[str],
         delete_command_after: Optional[bool] = True
     ) -> 'Session':
         user = await User.create_from_token(user_token)
         group = Group.create_from_token(group_token)
         return cls(
             user=user, group=group, commands_prefix=commands_prefix,
-            dispatcher=dispatcher, delete_command_after=delete_command_after, modules=modules
+            dispatcher=dispatcher, delete_command_after=delete_command_after,
+            deactivate_modules=deactivate_modules
         )
 
     async def close_session(self) -> None:
@@ -108,7 +121,7 @@ class Session(BaseModel):
     def owner_id(self) -> int:
         return self.user.owner_id
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.user.token)
 
     def __eq__(self, other_session: 'Session') -> bool:
