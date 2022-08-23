@@ -50,11 +50,6 @@ class SessionManager:
         )
 
     @classmethod
-    def add_many_sessions(cls, sessions: List['Session']) -> None:
-        for session in sessions:
-            cls.add_session(session)
-
-    @classmethod
     def delete_session(cls, session: 'Session') -> None:
         cls.sessions.remove(session)
         # Для отключения поллинга сессии, нужно получить список всех задач и по имени задачи найти нужную и отменить её.
