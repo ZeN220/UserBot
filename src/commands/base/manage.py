@@ -1,14 +1,12 @@
 import logging
 import time
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Type, Union
 
 from .command import Command
+from .filters import BaseFilter
 
 if TYPE_CHECKING:
-    import re
-    
     from src.dispatching import UserEvent
-    from src.dispatching.filters import BaseFilter
     from src.sessions import Session
     from .handler import BaseHandler
 
@@ -31,52 +29,39 @@ class CommandManager:
     @classmethod
     def register(
         cls,
+        *filters: BaseFilter,
         name: str,
         module: str,
         aliases: List[str],
         priority: int,
-        args_syntax: Union[str, 're.Pattern'],
-        filters: Optional[List['BaseFilter']] = None,
+        args_syntax: Union[str, List[str]],
     ):
         def decorator(handler: Type['BaseHandler']):
             command = Command(
                 name=name, module=module, aliases=aliases,
-                priority=priority, args_syntax=args_syntax, filters=filters,
-                handler=handler
+                priority=priority, args_syntax=args_syntax, handler=handler,
+                *filters
             )
             cls.commands.append(command)
             return command
         return decorator
 
     @classmethod
-    async def find_command(cls, event: 'UserEvent') -> Tuple[Optional[Command], dict]:
+    async def find_command(cls, event: 'UserEvent') -> Optional[Command]:
         session = event.session
-        commands = cls.commands_sessions[session]
-        for command in commands:
-            result, context = await command.is_suitable(event)
+        for command in cls.commands:
+            if command.module in session.deactivate_modules:
+                continue
+            result = await command.is_suitable(event)
             if result:
-                return command, context
-        return None, {}
+                return command
+        return
 
     @classmethod
     def setup_commands(cls):
         start_time = time.time()
         import src.commands # noqa
+        cls.commands.sort(key=lambda command: command.priority)
         end_time = time.time()
         result = round(end_time - start_time, 3)
         logger.info(f'Команды успешно инициализированы за {result} секунд.')
-
-    @classmethod
-    async def setup_commands_session(cls, session: 'Session'):
-        start_time = time.time()
-        for session_command in cls.commands:
-            command_module = session_command.module
-            is_activate_module = session.modules.get(command_module)
-            if is_activate_module:
-                cls.add_command(session_command, session)
-            elif is_activate_module is None:
-                logger.warning(f'В сессии [{session.owner_id}] не указан модуль «{command_module}». Отредактируйте файл sessions.toml и добавьте его в список модулей.')
-
-        end_time = time.time()
-        result = round(end_time - start_time, 3)
-        logger.info(f'Команды для сессии [{session.owner_id}] успешно инициализированы за {result} секунд.')
