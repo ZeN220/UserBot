@@ -1,7 +1,6 @@
 from typing import TypeVar, Generic, Type
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 
 from src.database.base import Base
 

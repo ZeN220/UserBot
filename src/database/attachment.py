@@ -1,5 +1,3 @@
-from typing import Optional, List
-
 from sqlalchemy import Integer, Text, Column, ForeignKey
 
 from .base import Base

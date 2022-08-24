@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import traceback
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from vkwave.bots.core.dispatching.extensions import UserLongpoll
 from vkwave.longpoll import UserLongpollData
