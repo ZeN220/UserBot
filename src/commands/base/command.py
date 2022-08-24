@@ -1,10 +1,10 @@
-from typing import List, TYPE_CHECKING, Type, Union, Optional
 import re
+from typing import List, TYPE_CHECKING, Type, Union
 
 from src.dispatching import UserEvent
+from src.services import HolderGateway
 from .filters import BaseFilter
 from .types import CommandResponse
-from src.services import HolderGateway
 
 if TYPE_CHECKING:
     from .handler import BaseHandler
@@ -41,5 +41,5 @@ class Command:
         return is_command
 
     async def start(self, event: 'UserEvent', gateway: HolderGateway) -> 'CommandResponse':
-        handler = self.handler(self, gateway)
-        return await handler.run(event)
+        handler = self.handler(event=event, command=self, gateway=gateway)
+        return await handler.run()

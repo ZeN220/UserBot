@@ -1,17 +1,18 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Tuple, Optional
 
-from .types import CommandArgs, CommandResponse
-from .errors import NotEnoughArgs
-from src.services import HolderGateway
 from src.dispatching import UserEvent
+from src.services import HolderGateway
+from .errors import NotEnoughArgs
+from .types import CommandArgs, CommandResponse
 
 if TYPE_CHECKING:
     from .command import Command
 
 
 class BaseHandler(ABC):
-    def __init__(self, command: 'Command', gateway: HolderGateway):
+    def __init__(self, event: UserEvent, command: 'Command', gateway: HolderGateway):
+        self.event = event
         self.command = command
         self.gateway = gateway
 
@@ -19,15 +20,15 @@ class BaseHandler(ABC):
     async def execute(self, **kwargs) -> 'CommandResponse':
         ...
 
-    async def run(self, event: 'UserEvent') -> Optional['CommandResponse']:
-        filters_result, context = await self.check_filters(event)
+    async def run(self) -> Optional['CommandResponse']:
+        filters_result, context = await self.check_filters(self.event)
         if not filters_result:
             return
 
         if self.command.args_syntax:
-            command_args = self.parse_args(event.object.object.text)
+            command_args = self.parse_args(self.event.object.object.text)
             if not command_args:
-                raise NotEnoughArgs(self.command.name, event.session.owner_id)
+                raise NotEnoughArgs(self.command.name, self.event.session.owner_id)
             context.update(command_args.args)
         return await self.execute(**context)
 
