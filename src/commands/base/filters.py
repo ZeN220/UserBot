@@ -28,13 +28,13 @@ class ParseUserFilter(BaseFilter):
     async def check(self, event: UserEvent, command: 'Command') -> FilterResult:
         user_context = event.session.user.api_context
         message_object = event.object.object
-        from_text = await self.parse_from_text(message_object.text, user_context)
-        if from_text is not None:
-            return FilterResult(result=True, context={'user_id': from_text})
-
         marked_users = message_object.message_data.marked_users
         if marked_users:
             return FilterResult(result=True, context={'user_id': marked_users[0][1][0]})
+
+        from_text = await self.parse_from_text(message_object.text, user_context)
+        if from_text is not None:
+            return FilterResult(result=True, context={'user_id': from_text})
 
         is_fwd = message_object.extra_message_data.get('fwd')
         if is_fwd is not None:
@@ -42,7 +42,6 @@ class ParseUserFilter(BaseFilter):
                 message_object.message_id, user_context
             )
             return FilterResult(result=True, context={'users_ids': users_ids})
-
         await event.session.send_service_message(
             f'[⚠] При попытке выполнить команду «{command.name}» '
             f'не удалось получить пользователя, на которого она будет действовать.'
@@ -67,22 +66,10 @@ class ParseUserFilter(BaseFilter):
         if not url_regexp:
             return
         result = await api_context.utils.resolve_screen_name(screen_name=url_regexp.group(1))
-        if result.response.dict().get('object_id'):
+        if result.response.object_id is not None:
             return result.response.object_id
 
     async def parse_from_text(self, text: str, api_context: APIOptionsRequestContext) -> Optional[int]:
-        """
-        Числовой ID из текста парсится только если он указан первым аргументом в команде.
-        Например, эта команда сработает и спарсит 1:
-        !бан 1
-        Но из этой команды уже ничего не спарсится:
-        !бан навечно 1
-        """
-        # TODO: Дикий костыль
-        from_text = text.split()
-        if len(from_text) > 1 and from_text[1].isdigit():
-            return int(from_text[1])
-
         from_url = await self.parse_from_url(text, api_context)
         if from_url is not None:
             return from_url
@@ -90,3 +77,11 @@ class ParseUserFilter(BaseFilter):
         mention_regexp = self.USER_MENTION_REGEXP.search(text)
         if mention_regexp:
             return int(mention_regexp.group(1))
+
+        from_text = text.split()
+        if len(from_text) > 1:
+            screen_name = from_text[1]
+            if screen_name.isdigit():
+                return int(screen_name)
+            result = await api_context.utils.resolve_screen_name(screen_name=screen_name)
+            return result.response.object_id
