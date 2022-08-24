@@ -1,14 +1,13 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Tuple, Optional
 
-from .types import CommandArgs
+from .types import CommandArgs, CommandResponse
 from .errors import NotEnoughArgs
 from src.services import HolderGateway
+from src.dispatching import UserEvent
 
 if TYPE_CHECKING:
-    from src.dispatching import UserEvent
     from .command import Command
-    from .types import CommandResponse
 
 
 class BaseHandler(ABC):
