@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class Command:
     def __init__(
         self,
-        *filters: 'BaseFilter',
+        *filters: BaseFilter,
         name: str,
         module: str,
         aliases: List[str],
