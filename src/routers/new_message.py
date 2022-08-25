@@ -1,6 +1,6 @@
 from vkwave.bots import DefaultRouter, FromMeFilter
 
-from src.commands.base import CommandManager
+from src.commands.base.manage import CommandManager
 from src.commands.base.errors import NotEnoughArgs
 from src.dispatching import UserEvent
 from src.dispatching.filters import TemplateFilter, PrefixFilter, EventTypeFilter
@@ -35,7 +35,9 @@ async def execute_command(event: UserEvent):
     # TODO: Обработка ошибка NotEnoughARgs в этом месте является не лучшим решением,
     #  ее стоит обрабатывать на более низком уровне
     try:
-        response = await command.start(event, event['gateway'])
+        response = await command.start(
+            event, gateway=event['gateway'], api_context=event.api_ctx
+        )
     except NotEnoughArgs:
         await event.session.send_service_message(
             f'[⌨] При написании команды «{event.object.object.text}» '

@@ -40,6 +40,6 @@ class Command:
         is_command = self.check_aliases(text)
         return is_command
 
-    async def start(self, event: 'UserEvent', gateway: HolderGateway) -> 'CommandResponse':
-        handler = self.handler(event=event, command=self, gateway=gateway)
-        return await handler.run()
+    async def start(self, event: 'UserEvent', **kwargs) -> 'CommandResponse':
+        handler = self.handler(command=self)
+        return await handler.run(event=event, **kwargs)
