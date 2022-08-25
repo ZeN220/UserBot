@@ -1,6 +1,6 @@
 from typing import List
 
-from sqlalchemy.future import select
+from sqlalchemy import select, delete
 from sqlalchemy.orm import subqueryload
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,3 +19,10 @@ class SessionGateway(BaseGateway[SessionModel]):
         async with self.session.begin():
             result = await self.session.execute(query)
         return result.scalars().all()
+
+    async def delete_by_user_token(self, user_token: str) -> None:
+        query = delete(SessionModel).where(
+            SessionModel.user_token == user_token
+        )
+        async with self.session.begin():
+            await self.session.execute(query)

@@ -24,12 +24,13 @@ async def get_sessions_from_database(database_session: AsyncSession) -> List[dic
 
 async def load_sessions_from_database(database_session: AsyncSession, dispatcher: Dispatcher) -> List[Session]:
     result = []
+    gateway = SessionGateway(database_session)
     sessions = await get_sessions_from_database(database_session)
     for session in sessions:
         try:
             session = await Session.create_from_tokens(**session, dispatcher=dispatcher)
         except InvalidSessionError:
-            continue
+            await gateway.delete_by_user_token(user_token=session['user_token'])
         else:
             result.append(session)
     return result
