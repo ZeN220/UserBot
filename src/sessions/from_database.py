@@ -17,12 +17,16 @@ async def get_sessions_from_database(database_session: AsyncSession) -> List[dic
             'group_token': session.group_token,
             'commands_prefix': session.commands_prefix,
             'delete_command_after': session.delete_command_after,
-            'deactivate_modules': session.deactivate_modules
+            'deactivate_modules': [
+                deactivate_module.module for deactivate_module in session.deactivate_modules
+            ]
         })
     return sessions_as_dict
 
 
-async def load_sessions_from_database(database_session: AsyncSession, dispatcher: Dispatcher) -> List[Session]:
+async def load_sessions_from_database(
+    database_session: AsyncSession, dispatcher: Dispatcher
+) -> List[Session]:
     result = []
     gateway = SessionGateway(database_session)
     sessions = await get_sessions_from_database(database_session)
