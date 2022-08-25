@@ -65,3 +65,7 @@ class CommandManager:
         end_time = time.time()
         result = round(end_time - start_time, 3)
         logger.info(f'Команды успешно инициализированы за {result} секунд.')
+
+
+# Алиас
+command_manager = CommandManager

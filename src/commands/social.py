@@ -1,10 +1,10 @@
 from typing import List, Optional
 
-from .base import CommandManager, CommandResponse, BaseHandler, Priority
+from .base import command_manager, CommandResponse, BaseHandler, Priority
 from .base.filters import ParseUserFilter
 
 
-@CommandManager.register(
+@command_manager.register(
     ParseUserFilter(), name='add_friend', module='social',
     aliases=['др+', 'друг+', 'fr+', 'friend+'], priority=Priority.MEDIUM, args_syntax=[r'(\d+)', '']
 )
@@ -25,7 +25,7 @@ class AddFriendHandler(BaseHandler):
         )
 
 
-@CommandManager.register(
+@command_manager.register(
     ParseUserFilter(), name='remove_friend', module='social',
     aliases=['др-', 'друг-', 'fr-', 'friend-'], priority=Priority.MEDIUM, args_syntax=[r'(\d+)', '']
 )
@@ -46,7 +46,7 @@ class RemoveFriendHandler(BaseHandler):
         )
 
 
-@CommandManager.register(
+@command_manager.register(
     ParseUserFilter(), name='add_block', module='social',
     aliases=['чс+', 'блок+', 'bl+', 'block+'], priority=Priority.MEDIUM, args_syntax=[r'(\d+)', '']
 )
@@ -67,7 +67,7 @@ class AddBlockHandler(BaseHandler):
         )
 
 
-@CommandManager.register(
+@command_manager.register(
     ParseUserFilter(), name='remove_block', module='social',
     aliases=['чс-', 'блок-', 'bl-', 'block-'], priority=Priority.MEDIUM, args_syntax=[r'(\d+)', '']
 )
