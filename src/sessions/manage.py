@@ -23,6 +23,8 @@ class SessionManager:
 
     @classmethod
     def get_session_from_token(cls, user_token: str) -> Union[NoReturn, 'Session']:
+        if cls.main_session.user.token == user_token:
+            return cls.main_session
         for session in cls.sessions:
             if session.user.token == user_token:
                 return session
