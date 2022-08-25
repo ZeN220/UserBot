@@ -4,7 +4,7 @@ import logging
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from src.commands.base import CommandManager
+from src.commands.base.manage import CommandManager
 from src.config import Config
 from src.dispatching import Dispatcher
 from src.dispatching.middlewares import DatabaseMiddleware
