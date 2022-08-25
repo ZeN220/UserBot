@@ -2,7 +2,6 @@ import re
 from typing import List, TYPE_CHECKING, Type, Union
 
 from src.dispatching import UserEvent
-from src.services import HolderGateway
 from .filters import BaseFilter
 from .types import CommandResponse
 

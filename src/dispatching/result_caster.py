@@ -28,7 +28,7 @@ class ResultCaster(BaseResultCaster):
         await handler(result, event)
 
 
-async def none_caster(_, event: UserEvent):
+async def none_caster(_, event: UserEvent):  # noqa
     pass
 
 

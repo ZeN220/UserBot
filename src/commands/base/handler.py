@@ -3,7 +3,6 @@ from typing import TYPE_CHECKING, Tuple, Optional, Dict, Any
 import inspect
 
 from src.dispatching import UserEvent
-from src.services import HolderGateway
 from .errors import NotEnoughArgs
 from .types import CommandArgs, CommandResponse
 

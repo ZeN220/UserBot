@@ -19,7 +19,8 @@ async def main():
     logging.basicConfig(level=config.logging.level, format=config.logging.format)
 
     engine = create_async_engine(config.database.url, future=True)
-    # Возможно, установка настройки expire_on_commit=False является не лучшим решением, в будущем стоит использовать DTO
+    # Возможно, установка настройки expire_on_commit=False является не лучшим решением,
+    # в будущем стоит использовать DTO
     session_maker = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
 
     caster = ResultCaster()
@@ -43,7 +44,9 @@ async def main():
         dispatcher=dispatcher, deactivate_modules=deactivate_modules,
         delete_command_after=config.vk.delete_command_after
     )
-    sessions = await load_sessions_from_database(database_session=session_maker(), dispatcher=dispatcher)
+    sessions = await load_sessions_from_database(
+        database_session=session_maker(), dispatcher=dispatcher
+    )
     for session in sessions:
         SessionManager.add_session(session)
     SessionManager.add_session(owner_session, is_main=True)

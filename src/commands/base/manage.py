@@ -1,13 +1,12 @@
 import logging
 import time
-from typing import TYPE_CHECKING, Dict, List, Optional, Type, Union
+from typing import TYPE_CHECKING, List, Optional, Type, Union
 
 from .command import Command
 from .filters import BaseFilter
 
 if TYPE_CHECKING:
     from src.dispatching import UserEvent
-    from src.sessions import Session
     from .handler import BaseHandler
 
 logger = logging.getLogger(__name__)
@@ -15,16 +14,10 @@ logger = logging.getLogger(__name__)
 
 class CommandManager:
     commands: List[Command] = []
-    commands_sessions: Dict['Session', List[Command]] = {}
 
     @classmethod
-    def add_command(cls, command: Command, session: 'Session') -> None:
-        session_commands = cls.commands_sessions.get(session, [])
-        session_commands.append(command)
-        cls.commands_sessions.update({
-            session: session_commands
-        })
-        logger.debug(f'Команда {command.name} для сессии [{session.owner_id}] успешно инициализирована.')
+    def add_command(cls, command: Command):
+        cls.commands.append(command)
         
     @classmethod
     def register(
@@ -42,7 +35,7 @@ class CommandManager:
                 priority=priority, args_syntax=args_syntax, handler=handler,
                 *filters
             )
-            cls.commands.append(command)
+            cls.add_command(command)
             return command
         return decorator
 

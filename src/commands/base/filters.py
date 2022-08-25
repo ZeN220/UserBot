@@ -75,7 +75,9 @@ class ParseUserFilter(BaseFilter):
             result.append(fwd_message.from_id)
         return result
 
-    async def parse_from_url(self, url: str, api_context: APIOptionsRequestContext) -> Optional[int]:
+    async def parse_from_url(
+        self, url: str, api_context: APIOptionsRequestContext
+    ) -> Optional[int]:
         url_regexp = self.USER_URL_REGEXP.search(url)
         if not url_regexp:
             return
@@ -83,7 +85,9 @@ class ParseUserFilter(BaseFilter):
         if result.response.object_id is not None:
             return result.response.object_id
 
-    async def parse_from_text(self, text: str, api_context: APIOptionsRequestContext) -> Optional[int]:
+    async def parse_from_text(
+        self, text: str, api_context: APIOptionsRequestContext
+    ) -> Optional[int]:
         from_url = await self.parse_from_url(text, api_context)
         if from_url is not None:
             return from_url

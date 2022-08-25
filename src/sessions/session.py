@@ -61,7 +61,9 @@ class Group(BaseModel):
     api_context: APIOptionsRequestContext
 
     @classmethod
-    def create_from_token(cls, bot_token: str, error_dispatcher: Optional['ErrorDispatcher'] = None) -> 'Group':
+    def create_from_token(
+        cls, bot_token: str, error_dispatcher: Optional['ErrorDispatcher'] = None
+    ) -> 'Group':
         if error_dispatcher is None:
             error_dispatcher = ErrorDispatcher()
             error_dispatcher.handlers = GROUP_ERROR_HANDLERS
@@ -125,7 +127,10 @@ class Session(BaseModel):
         return hash(self.user.token)
 
     def __eq__(self, other_session: 'Session') -> bool:
-        return self.user.token == other_session.user.token or self.owner_id == other_session.owner_id
+        return (
+            self.user.token == other_session.user.token
+            or self.owner_id == other_session.owner_id
+        )
 
     class Config:
         arbitrary_types_allowed = True

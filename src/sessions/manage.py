@@ -54,7 +54,8 @@ class SessionManager:
     @classmethod
     def delete_session(cls, session: 'Session') -> None:
         cls.sessions.remove(session)
-        # Для отключения поллинга сессии, нужно получить список всех задач и по имени задачи найти нужную и отменить её.
+        # Для отключения поллинга сессии, нужно получить список всех задач и
+        # по имени задачи найти нужную и отменить её.
         loop = asyncio.get_running_loop()
         all_tasks = asyncio.all_tasks(loop)
         for task in all_tasks:
