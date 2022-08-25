@@ -36,8 +36,12 @@ class ParseUserFilter(BaseFilter):
         if from_text is not None:
             return FilterResult(result=True, context={'user_id': from_text})
 
-        is_fwd = message_object.extra_message_data.get('fwd')
-        if is_fwd is not None:
+        extra = message_object.extra_message_data
+        if extra.get('reply'):
+            user_id = await self.parse_from_reply(message_object.message_id, user_context)
+            return FilterResult(result=True, context={'user_id': user_id})
+
+        if extra.get('fwd') is not None:
             users_ids = await self.parse_from_fwd(
                 message_object.message_id, user_context
             )
@@ -49,10 +53,20 @@ class ParseUserFilter(BaseFilter):
         return FilterResult(result=False)
 
     @staticmethod
+    async def parse_from_reply(
+        message_id: int,
+        api_context: APIOptionsRequestContext
+    ) -> int:
+        result = await api_context.messages.get_by_id(
+            message_ids=message_id
+        )
+        return result.response.items[0].reply_message.from_id
+
+    @staticmethod
     async def parse_from_fwd(
         message_id: int,
         api_context: APIOptionsRequestContext
-    ) -> Optional[List[int]]:
+    ) -> List[int]:
         result = []
         response = (await api_context.messages.get_by_id(
             message_ids=message_id
