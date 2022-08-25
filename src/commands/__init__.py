@@ -1,2 +1,2 @@
-from .test_command import TestHandler
+from .social import AddFriendHandler
 from .base import CommandResponse
