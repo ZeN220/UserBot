@@ -34,8 +34,7 @@ class Command:
     def check_aliases(self, text: str) -> bool:
         return text.startswith(tuple(self.aliases))
 
-    async def is_suitable(self, event: 'UserEvent') -> bool:
-        text = event.object.object.text[1:].lstrip()
+    async def is_suitable(self, text: str) -> bool:
         is_command = self.check_aliases(text)
         return is_command
 

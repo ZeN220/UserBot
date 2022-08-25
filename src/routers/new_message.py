@@ -22,7 +22,11 @@ async def send_template(event: UserEvent):
 
 @new_message_router.registrar.with_decorator(PrefixFilter())
 async def execute_command(event: UserEvent):
-    command = await CommandManager.find_command(event)
+    text = event.object.object.text[1:].lstrip()
+    command = await CommandManager.find_command(
+        session=event.session,
+        text=text
+    )
     if command is None:
         return
 

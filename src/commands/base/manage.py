@@ -2,11 +2,11 @@ import logging
 import time
 from typing import TYPE_CHECKING, List, Optional, Type, Union
 
+from src.sessions import Session
 from .command import Command
 from .filters import BaseFilter
 
 if TYPE_CHECKING:
-    from src.dispatching import UserEvent
     from .handler import BaseHandler
 
 logger = logging.getLogger(__name__)
@@ -40,12 +40,11 @@ class CommandManager:
         return decorator
 
     @classmethod
-    async def find_command(cls, event: 'UserEvent') -> Optional[Command]:
-        session = event.session
+    async def find_command(cls, session: Session, text: str) -> Optional[Command]:
         for command in cls.commands:
             if command.module in session.deactivate_modules:
                 continue
-            result = await command.is_suitable(event)
+            result = await command.is_suitable(text)
             if result:
                 return command
         return
