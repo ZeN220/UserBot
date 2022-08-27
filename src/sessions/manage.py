@@ -1,7 +1,8 @@
-from typing import List, Optional, TYPE_CHECKING, NoReturn, Union
-import logging
 import asyncio
+import logging
+from typing import List, Optional, TYPE_CHECKING, NoReturn, Union
 
+from src.dispatching import Dispatcher
 from .errors import UndefinedSessionError
 
 if TYPE_CHECKING:
@@ -65,11 +66,11 @@ class SessionManager:
         logger.info(f'Сессия [{session.owner_id}] была успешно удалена.')
 
     @classmethod
-    async def run_all_polling(cls) -> None:
+    async def run_all_polling(cls, dispatcher: Dispatcher) -> None:
         if cls.main_session:
-            await cls.main_session.run_polling()
+            await cls.main_session.run_polling(dispatcher)
         for session in cls.sessions:
-            await session.run_polling()
+            await session.run_polling(dispatcher)
 
     @classmethod
     async def close_sessions(cls) -> None:

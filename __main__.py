@@ -41,19 +41,16 @@ async def main():
         user_token=config.vk.user_token,
         group_token=config.vk.bot_token,
         commands_prefix=config.vk.commands_prefix,
-        dispatcher=dispatcher, deactivate_modules=deactivate_modules,
-        delete_command_after=config.vk.delete_command_after
+        deactivate_modules=deactivate_modules, delete_command_after=config.vk.delete_command_after
     )
-    sessions = await load_sessions_from_database(
-        database_session=session_maker(), dispatcher=dispatcher
-    )
+    sessions = await load_sessions_from_database(database_session=session_maker())
     for session in sessions:
         SessionManager.add_session(session)
     SessionManager.add_session(owner_session, is_main=True)
 
     CommandManager.setup_commands()
 
-    await SessionManager.run_all_polling()
+    await SessionManager.run_all_polling(dispatcher)
 
 
 if __name__ == '__main__':

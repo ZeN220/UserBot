@@ -82,7 +82,6 @@ class Session(BaseModel):
     user: User
     group: Group
     commands_prefix: str
-    dispatcher: Dispatcher
     deactivate_modules: List[str]
     delete_command_after: Optional[bool] = True
 
@@ -92,7 +91,6 @@ class Session(BaseModel):
         user_token: str,
         group_token: str,
         commands_prefix: str,
-        dispatcher: 'Dispatcher',
         deactivate_modules: List[str],
         delete_command_after: Optional[bool] = True
     ) -> 'Session':
@@ -100,8 +98,7 @@ class Session(BaseModel):
         group = Group.create_from_token(group_token)
         return cls(
             user=user, group=group, commands_prefix=commands_prefix,
-            dispatcher=dispatcher, delete_command_after=delete_command_after,
-            deactivate_modules=deactivate_modules
+            delete_command_after=delete_command_after, deactivate_modules=deactivate_modules
         )
 
     async def close_session(self) -> None:
@@ -115,8 +112,9 @@ class Session(BaseModel):
             message=text
         )
 
-    async def run_polling(self) -> None:
-        longpoll = LongPoll(self)
+    async def run_polling(self, dispatcher: Dispatcher) -> None:
+        # TODO: Создание объекта Longpoll в этом месте не лучшее решение
+        longpoll = LongPoll(session=self, dispatcher=dispatcher)
         await longpoll.start()
 
     @property
