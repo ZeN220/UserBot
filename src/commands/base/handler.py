@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Tuple, Optional, Dict, Any
 import inspect
+import re
 
 from src.dispatching import UserEvent
 from .errors import NotEnoughArgs
@@ -8,6 +9,9 @@ from .types import CommandArgs, CommandResponse
 
 if TYPE_CHECKING:
     from .command import Command
+
+# TEXT_WITHOUT_COMMAND создан для удаления префикса и команды из текста сообщения
+TEXT_WITHOUT_COMMAND_REGEXP = re.compile(r'^\S+(\s)?')
 
 
 class BaseHandler(ABC):
@@ -25,7 +29,8 @@ class BaseHandler(ABC):
             return
 
         if self.command.args_syntax:
-            command_args = self.parse_args(event.object.object.text)
+            arguments = TEXT_WITHOUT_COMMAND_REGEXP.sub('', event.object.object.text)
+            command_args = self.parse_args(arguments)
             if not command_args:
                 raise NotEnoughArgs(self.command.name, event.session.owner_id)
             context.update(command_args.args)
