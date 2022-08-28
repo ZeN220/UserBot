@@ -58,11 +58,14 @@ async def too_many_requests(error: dict, api_ctx: APIOptionsRequestContext):
     Хендлер 6 ошибки от VK API
     """
     if error.get('execute_errors'):
-        return
+        return await api_ctx.api_request(
+            'execute', params={'code': error['request_params']['code']}
+        )
     method = error["error"]["request_params"][0]["value"]
     """
     При вызове messages.send и возникновении ошибки, 
     VK API не возвращает текст сообщения, из-за этого повторить запрос нельзя. 
+    (На самом деле можно, но для этого нужно писать достаточно сложную реализацию)
     """
     if method == 'messages.send':
         return
