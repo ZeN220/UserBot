@@ -13,7 +13,7 @@ while(iter_list.length > 0 && calls < 25) {
     API.messages.markAsRead({"peer_id": dialog.conversation.peer.id});
     calls = calls + 1;
 }
-return dialogs;
+return {"dialogs": dialogs, "count": dialogs.length};
 """
 
 
@@ -24,23 +24,27 @@ return dialogs;
 class ReadDialogsHandler(BaseHandler):
     async def execute(self, api_context: APIOptionsRequestContext) -> 'CommandResponse':
         start_time = time.time()
-        await read_all_dialogs(api_context)
+        count_read_dialogs = await read_all_dialogs(api_context)
         result = time.time() - start_time
         return CommandResponse(
-            response=f'[📭] Диалоги успешно прочитаны за {result:.3f} секунд.'
+            response=f'[📭] Было успешно прочитано {count_read_dialogs} '
+                     f'диалогов за {result:.3f} секунд.'
         )
 
 
-async def read_all_dialogs(api_context: APIOptionsRequestContext) -> None:
+async def read_all_dialogs(api_context: APIOptionsRequestContext) -> int:
     """
     Из-за того, что VK API возвращает максимум 200 диалогов за 1 запрос,
     нужно рекурсивно вызывать метод чтения диалогов.
     """
-    dialogs = await _read_dialogs(api_context)
-    while dialogs:
-        dialogs = await _read_dialogs(api_context)
+    response = await _read_dialogs(api_context)
+    count = response['count']
+    while response['dialogs']:
+        response = await _read_dialogs(api_context)
+        count += response['count']
+    return count
 
 
-async def _read_dialogs(api_context: APIOptionsRequestContext):
+async def _read_dialogs(api_context: APIOptionsRequestContext) -> dict:
     result = await api_context.execute(code=execute_code)
     return result.response
