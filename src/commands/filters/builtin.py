@@ -1,24 +1,14 @@
+import json
 import re
-from abc import ABC, abstractmethod
-from typing import Optional, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, List
 
-from pydantic import BaseModel, Field
 from vkwave.api import APIOptionsRequestContext
 
 from src.dispatching import UserEvent
+from .base import BaseFilter, FilterResult
+
 if TYPE_CHECKING:
-    from .command import Command
-
-
-class FilterResult(BaseModel):
-    result: bool = Field(None, description='Result of checking filter')
-    context: dict = Field(None, description='Values from filter')
-
-
-class BaseFilter(ABC):
-    @abstractmethod
-    async def check(self, event: UserEvent, command: 'Command') -> FilterResult:
-        ...
+    from src.commands.base.command import Command
 
 
 class ParseUserFilter(BaseFilter):
@@ -103,3 +93,33 @@ class ParseUserFilter(BaseFilter):
                 return int(screen_name)
             result = await api_context.utils.resolve_screen_name(screen_name=screen_name)
             return result.response.object_id
+
+
+class ParseDataFromReply(BaseFilter):
+    async def check(self, event: UserEvent, command: 'Command') -> FilterResult:
+        reply = event.object.object.extra_message_data.get('reply')
+        if not reply:
+            return FilterResult(result=False)
+
+        conversation_message_id = json.loads(reply)['conversation_message_id']
+        message = (await event.api_ctx.messages.get_by_conversation_message_id(
+            peer_id=event.object.object.peer_id, conversation_message_ids=conversation_message_id
+        )).response.items[0]
+        return FilterResult(
+            result=True,
+            context={'text': message.text, 'attachments': message.attachments}
+        )
+
+
+class ParseDataFromFwd(BaseFilter):
+    async def check(self, event: UserEvent, command: 'Command') -> FilterResult:
+        fwd = event.object.object.extra_message_data.get('fwd')
+        if not fwd:
+            return FilterResult(result=False)
+        message = (await event.api_ctx.messages.get_by_id(
+            message_ids=event.object.object.message_id
+        )).response.items[0].fwd_messages[0]
+        return FilterResult(
+            result=True,
+            context={'text': message.text, 'attachments': message.attachments}
+        )

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, List, Optional, Type, Union
 
 from src.sessions import Session
 from .command import Command
-from .filters import BaseFilter
+from src.commands.filters.base import BaseFilter
 
 if TYPE_CHECKING:
     from .handler import BaseHandler

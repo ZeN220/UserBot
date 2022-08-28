@@ -1,8 +1,8 @@
 import re
 from typing import List, TYPE_CHECKING, Type, Union, Optional
 
+from src.commands.filters.base import BaseFilter
 from src.dispatching import UserEvent
-from .filters import BaseFilter
 from .types import CommandResponse
 
 if TYPE_CHECKING:

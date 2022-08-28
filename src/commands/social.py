@@ -3,7 +3,7 @@ from typing import List, Optional
 from vkwave.api import APIOptionsRequestContext
 
 from .base import command_manager, CommandResponse, BaseHandler, Priority
-from .base.filters import ParseUserFilter
+from .filters import ParseUserFilter
 
 
 @command_manager.register(
