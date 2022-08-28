@@ -22,8 +22,12 @@ class PrefixFilter(BaseFilter):
 
 class TemplateFilter(BaseFilter):
     async def check(self, event: 'UserEvent') -> FilterResult:
+        text = event.object.object.text
+        if len(text) > 64:
+            return FilterResult(False)
+
         gateway = event['gateway']
-        template = await gateway.template.get(event.object.object.text, event.session.owner_id)
+        template = await gateway.template.get(text, event.session.owner_id)
         if template:
             attachments = [attachment.document for attachment in template.attachments]
             event['template'] = {'message': template.answer, 'attachment': attachments}
