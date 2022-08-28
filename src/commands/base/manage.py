@@ -27,7 +27,7 @@ class CommandManager:
         module: str,
         aliases: List[str],
         priority: int,
-        args_syntax: Union[str, List[str]],
+        args_syntax: Optional[Union[str, List[str]]] = None,
     ):
         def decorator(handler: Type['BaseHandler']):
             command = Command(

@@ -1,5 +1,5 @@
 import re
-from typing import List, TYPE_CHECKING, Type, Union
+from typing import List, TYPE_CHECKING, Type, Union, Optional
 
 from src.dispatching import UserEvent
 from .filters import BaseFilter
@@ -18,18 +18,18 @@ class Command:
         aliases: List[str],
         handler: Type['BaseHandler'],
         priority: int,
-        args_syntax: Union[str, List[str]],
+        args_syntax: Optional[Union[str, List[str]]] = None,
     ):
         self.name = name
         self.module = module
         self.aliases = aliases
-        self.handler = handler
+        self.handler = handler(command=self)
         self.priority = priority
         self.filters = filters
         if isinstance(args_syntax, list):
             self.args_syntax = [re.compile(syntax) for syntax in args_syntax]
         else:
-            self.args_syntax = [re.compile(args_syntax)]
+            self.args_syntax = [re.compile(args_syntax)] if args_syntax is not None else []
 
     def check_aliases(self, text: str) -> bool:
         return text.startswith(tuple(self.aliases))
@@ -39,5 +39,4 @@ class Command:
         return is_command
 
     async def start(self, event: 'UserEvent', **kwargs) -> 'CommandResponse':
-        handler = self.handler(command=self)
-        return await handler.run(event=event, **kwargs)
+        return await self.handler.run(event=event, **kwargs)
