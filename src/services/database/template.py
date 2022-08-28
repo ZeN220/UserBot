@@ -21,7 +21,7 @@ class TemplateGateway(BaseGateway[Template]):
             result = await self.session.execute(query)
         return result.scalar()
 
-    async def exists(self, trigger: str, owner_id: int):
+    async def exists(self, trigger: str, owner_id: int) -> bool:
         query = select(exists(
             select(Template.id).where(
                 (Template.owner_id == owner_id) & (Template.trigger == trigger)
