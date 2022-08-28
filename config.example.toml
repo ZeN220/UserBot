@@ -1,27 +1,21 @@
 [vk]
 user_token = ""
-bot_token = ""
-commands_prefix = '.'
-
-[modules]
-social = true
-dev = true
-messages = true
-to_delete = true
-logger = true
-template = true
+group_token = ""
+commands_prefix = '/'
+delete_command_after = true
+deactivate_modules = ['']
 
 [to_delete]
 to_delete_trigger = ["дд"]
 to_delete_argument = "-"
 
 [logger]
-delete_notification = false
+delete_notification = true
 edit_notification = false
 
 # Для разработчиков
 [database]
-url = 'sqlite://database.sqlite'
+url = 'sqlite+aiosqlite:///database.sqlite'
 
 [logging]
 level = 20

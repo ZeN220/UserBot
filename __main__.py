@@ -29,19 +29,12 @@ async def main():
     dispatcher.add_router(new_message_router)
     dispatcher.add_middleware(DatabaseMiddleware(session_maker))
 
-    """
-    Из-за того, что в конфиге хранятся и включенные, и выключенные модули, 
-    нужно создавать список, в котором хранятся только выключенные модули
-    """
-    deactivate_modules = [
-        module for module, is_activate in config.modules.items() if not is_activate
-    ]
-
     owner_session = await Session.create_from_tokens(
         user_token=config.vk.user_token,
-        group_token=config.vk.bot_token,
+        group_token=config.vk.group_token,
         commands_prefix=config.vk.commands_prefix,
-        deactivate_modules=deactivate_modules, delete_command_after=config.vk.delete_command_after
+        deactivate_modules=config.vk.deactivate_modules,
+        delete_command_after=config.vk.delete_command_after
     )
     sessions = await load_sessions_from_database(database_session=session_maker())
     for session in sessions:
