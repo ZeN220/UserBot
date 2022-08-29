@@ -40,11 +40,11 @@ class CommandManager:
         return decorator
 
     @classmethod
-    async def find_command(cls, session: Session, text: str) -> Optional[Command]:
+    def find_command(cls, session: Session, text: str) -> Optional[Command]:
         for command in cls.commands:
             if command.module in session.deactivate_modules:
                 continue
-            result = await command.is_suitable(text)
+            result = command.is_suitable(text)
             if result:
                 return command
         return
