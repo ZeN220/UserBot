@@ -34,13 +34,9 @@ async def none_caster(_, event: UserEvent):  # noqa
 
 async def command_response_caster(command_response: CommandResponse, event: UserEvent):
     session = event.session
-    group_api_context = session.group.api_context
     response = command_response.response
     for index in range(0, len(response), 4096):
-        await group_api_context.messages.send(
-            peer_id=session.owner_id, random_id=0,
-            message=response[index:index + 4096]
-        )
+        await session.send_service_message(response[index:index + 4096])
 
 
 CASTERS = {
