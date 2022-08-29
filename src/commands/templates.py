@@ -58,7 +58,13 @@ class GetTemplatesHandler(BaseHandler):
         templates = await gateway.template.get_triggers_by_owner_id(session.owner_id)
         response = []
         for index, template in enumerate(templates):
-            response.append(f'{index + 1}. {template}\n')
+            template_trigger, attachments_count = template
+            if attachments_count > 0:
+                response.append(
+                    f'{index + 1}. {template_trigger}\nКоличество вложений: {attachments_count}\n'
+                )
+                continue
+            response.append(f'{index + 1}. {template_trigger}\n')
         answer = '\n'.join(response)
         return CommandResponse(
             response=f'[📜] Список ваших шаблонов: \n{answer}'
