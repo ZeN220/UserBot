@@ -10,6 +10,10 @@ class DatabaseMiddleware(BaseMiddleware):
         self.session_pool = session_pool
 
     async def pre_process_event(self, event: UserEvent) -> MiddlewareResult:
-        session_pool = self.session_pool()
-        event['gateway'] = HolderGateway(session_pool)
+        session = self.session_pool()
+        event['session'] = session
+        event['gateway'] = HolderGateway(session)
         return MiddlewareResult(True)
+
+    async def post_process_event(self, event: UserEvent):
+        await event['session'].close()
