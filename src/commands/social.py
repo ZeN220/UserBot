@@ -122,3 +122,32 @@ class InviteHandler(BaseHandler):
         return CommandResponse(
             response=f'[🏠] [id{user_id}|Пользователь] успешно добавлен в чат.'
         )
+
+
+@command_manager.register(
+    ParseUserFilter(), ConversationFilter(from_chat=True), name='kick', module='social',
+    aliases=['kick', 'кик'], priority=Priority.HIGH, args_syntax=[r'(\d+)', '']
+)
+class KickHandler(BaseHandler):
+    async def execute(
+        self,
+        event: UserEvent,
+        api_context: APIOptionsRequestContext,
+        user_id: Optional[int] = None,
+        users_ids: Optional[List[int]] = None
+    ) -> 'CommandResponse':
+        chat_id = event.object.object.peer_id - 2e9
+        if users_ids is not None:
+            for user_id in users_ids:
+                await api_context.messages.remove_chat_user(
+                    user_id=user_id, chat_id=chat_id
+                )
+            return CommandResponse(
+                response='[👮] Пользователи успешно исключены из чата.'
+            )
+        await api_context.messages.remove_chat_user(
+            user_id=user_id, chat_id=chat_id
+        )
+        return CommandResponse(
+            response=f'[👮] [id{user_id}|Пользователь] успешно исключен из чата.'
+        )
