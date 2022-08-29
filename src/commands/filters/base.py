@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 class FilterResult(BaseModel):
     result: bool = Field(None, description='Result of checking filter')
-    context: dict = Field(None, description='Values from filter')
+    context: dict = Field({}, description='Values from filter')
 
 
 class BaseFilter(ABC):
