@@ -35,9 +35,9 @@ class BaseHandler(ABC):
                 raise NotEnoughArgs(self.command.name, event.session.owner_id)
             context.update(command_args.args)
 
-        kwargs.update({'event': event})
-        kwargs = self._prepare_kwargs(kwargs)
+        context.update({'event': event})
         context.update(kwargs)
+        context = self._prepare_kwargs(context)
 
         return await self.execute(**context)
 
