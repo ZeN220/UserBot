@@ -123,3 +123,12 @@ class ParseDataFromFwd(BaseFilter):
             result=True,
             context={'text': message.text, 'attachments': message.attachments}
         )
+
+
+class ConversationFilter(BaseFilter):
+    def __init__(self, from_chat: bool):
+        self.from_chat = from_chat
+
+    async def check(self, event: UserEvent, command: 'Command') -> FilterResult:
+        # Если сообщение пришло в личные сообщения, то поле from_id будет равняться None
+        return FilterResult(result=event.object.object.message_data.from_id and self.from_chat)

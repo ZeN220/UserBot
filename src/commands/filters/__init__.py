@@ -1,1 +1,1 @@
-from .builtin import ParseDataFromReply, ParseDataFromFwd, ParseUserFilter
+from .builtin import ParseDataFromReply, ParseDataFromFwd, ParseUserFilter, ConversationFilter
