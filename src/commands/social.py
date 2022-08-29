@@ -3,7 +3,8 @@ from typing import List, Optional
 from vkwave.api import APIOptionsRequestContext
 
 from .base import command_manager, CommandResponse, BaseHandler, Priority
-from .filters import ParseUserFilter
+from .filters import ParseUserFilter, ConversationFilter
+from src.dispatching import UserEvent
 
 
 @command_manager.register(
@@ -91,4 +92,33 @@ class RemoveBlockHandler(BaseHandler):
         await api_context.account.unban(owner_id=user_id)
         return CommandResponse(
             response=f'[💣] [id{user_id}|Пользователь] успешно удален из черного списка.'
+        )
+
+
+@command_manager.register(
+    ParseUserFilter(), ConversationFilter(from_chat=True), name='invite', module='social',
+    aliases=['invite', 'добавить'], args_syntax=[r'(\d+)', ''], priority=Priority.MEDIUM
+)
+class InviteHandler(BaseHandler):
+    async def execute(
+        self,
+        event: UserEvent,
+        api_context: APIOptionsRequestContext,
+        user_id: Optional[int] = None,
+        users_ids: Optional[List[int]] = None
+    ) -> 'CommandResponse':
+        chat_id = event.object.object.peer_id - 2e9
+        if users_ids is not None:
+            for user_id in users_ids:
+                await api_context.messages.add_chat_user(
+                    user_id=user_id, chat_id=chat_id, visible_messages_count=0
+                )
+            return CommandResponse(
+                response='[🏠] Пользователи успешно добавлены в чат.'
+            )
+        await api_context.messages.add_chat_user(
+            user_id=user_id, chat_id=chat_id, visible_messages_count=0
+        )
+        return CommandResponse(
+            response=f'[🏠] [id{user_id}|Пользователь] успешно добавлен в чат.'
         )

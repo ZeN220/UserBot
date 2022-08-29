@@ -11,34 +11,54 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-async def add_undefined_user_friend(_, api_ctx: APIOptionsRequestContext):
+async def cant_add_user_chat(_, api_ctx: APIOptionsRequestContext):
     """
-    Хендлер 177 ошибкой от VK API
+    Хендлер 15 ошибки от VK API
     """
     session = await _get_session_from_api_ctx(api_ctx)
     await session.send_service_message(
-        f'[⚠] Пользователь не найден и не будет добавлен в список друзей.'
+        '[⚠] Не удалось добавить пользователя в чат. Возможно, он запретил приглашать себя в чаты.'
+    )
+
+
+async def you_arent_admin_chat(_, api_ctx: APIOptionsRequestContext):
+    """
+    Хендлер 925 ошибки от VK API
+    """
+    session = await _get_session_from_api_ctx(api_ctx)
+    await session.send_service_message(
+        '[⚠] Вы не являетесь администратором в данном чате.'
+    )
+
+
+async def add_undefined_user_friend(_, api_ctx: APIOptionsRequestContext):
+    """
+    Хендлер 177 ошибки от VK API
+    """
+    session = await _get_session_from_api_ctx(api_ctx)
+    await session.send_service_message(
+        '[⚠] Пользователь не найден и не будет добавлен в список друзей.'
     )
 
 
 async def add_user_in_your_blacklist_friend(_, api_ctx: APIOptionsRequestContext):
     """
-    Хендлер 176 ошибкой от VK API
+    Хендлер 176 ошибки от VK API
     """
     session = await _get_session_from_api_ctx(api_ctx)
     await session.send_service_message(
-        f'[⚠] Вы не можете добавить данного пользователя список друзей,'
-        f'потому что он находится в вашем черном списке.'
+        '[⚠] Вы не можете добавить данного пользователя список друзей,'
+        'потому что он находится в вашем черном списке.'
     )
 
 
 async def add_himself_friend(_, api_ctx: APIOptionsRequestContext):
     """
-    Хендлер 174 ошибкой от VK API
+    Хендлер 174 ошибки от VK API
     """
     session = await _get_session_from_api_ctx(api_ctx)
     await session.send_service_message(
-        f'[⚠] Вы не можете добавить самого себя в список друзей.'
+        '[⚠] Вы не можете добавить самого себя в список друзей.'
     )
 
 
@@ -48,8 +68,8 @@ async def add_user_in_him_blacklist_friend(_, api_ctx: APIOptionsRequestContext)
     """
     session = await _get_session_from_api_ctx(api_ctx)
     await session.send_service_message(
-        f'[⚠] Вы не можете добавить данного пользователя в список друзей, '
-        f'потому что находитесь у него в черном списке.'
+        '[⚠] Вы не можете добавить данного пользователя в список друзей, '
+        'потому что находитесь у него в черном списке.'
     )
 
 
@@ -81,13 +101,13 @@ async def too_many_requests(error: dict, api_ctx: APIOptionsRequestContext):
 
 async def user_auth_failed(_, api_ctx: APIOptionsRequestContext):
     """
-    Хендлер 5 ошибкой от VK API
+    Хендлер 5 ошибки от VK API
     """
     session = await _get_session_from_api_ctx(api_ctx)
 
     await session.send_service_message(
-        f'[🚪] При авторизации с вашего аккаунта произошла ошибка. '
-        f'Ваша сессия будет автоматически удалена.'
+        '[🚪] При авторизации с вашего аккаунта произошла ошибка. '
+        'Ваша сессия будет автоматически удалена.'
     )
     SessionManager.delete_session(session)
 
@@ -137,10 +157,12 @@ async def cant_send_message_handler(error: dict, api_ctx: APIOptionsRequestConte
 ERROR_HANDLERS = {
     5: user_auth_failed,
     6: too_many_requests,
+    15: cant_add_user_chat,
     174: add_himself_friend,
     175: add_user_in_him_blacklist_friend,
     176: add_user_in_your_blacklist_friend,
     177: add_undefined_user_friend,
+    925: you_arent_admin_chat,
 }
 GROUP_ERROR_HANDLERS = {901: cant_send_message_handler}
 
