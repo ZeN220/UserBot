@@ -34,8 +34,11 @@ class BaseHandler(ABC):
             if not command_args:
                 raise NotEnoughArgs(self.command.name, event.session.owner_id)
             context.update(command_args.args)
+
+        kwargs.update({'event': event})
         kwargs = self._prepare_kwargs(kwargs)
         context.update(kwargs)
+
         return await self.execute(**context)
 
     async def check_filters(self, event: 'UserEvent') -> Tuple[bool, dict]:
