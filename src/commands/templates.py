@@ -24,12 +24,16 @@ class AddTemplateHandler(BaseHandler):
         text: str,
         attachments: Optional[List[MessagesMessageAttachment]] = None,
     ) -> 'CommandResponse':
-        owner_id = session.owner_id
+        if isinstance(trigger, int):
+            return CommandResponse(
+                response='[⚠] Название шаблона не может состоять исключительно из цифр.'
+            )
         if len(trigger) > 64:
             return CommandResponse(
                 response='[⚠] Длина названия шаблона не должна превышать 64 символа.'
             )
 
+        owner_id = session.owner_id
         exists_template = await gateway.template.exists(trigger, owner_id)
         if exists_template:
             return CommandResponse(
