@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from sqlalchemy.future import select
+from sqlalchemy import select, delete
 from sqlalchemy.sql import exists
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
@@ -21,6 +21,12 @@ class TemplateGateway(BaseGateway[Template]):
             result = await self.session.execute(query)
         return result.scalar()
 
+    async def get_triggers_by_owner_id(self, owner_id: int) -> Optional[List[Template]]:
+        query = select(Template.trigger).where(Template.owner_id == owner_id)
+        async with self.session.begin():
+            result = await self.session.execute(query)
+        return result.scalars().all()
+
     async def exists(self, trigger: str, owner_id: int) -> bool:
         query = select(exists(
             select(Template.id).where(
@@ -30,6 +36,11 @@ class TemplateGateway(BaseGateway[Template]):
         async with self.session.begin():
             result = await self.session.execute(query)
         return result.scalar()
+
+    async def delete(self, trigger: str, owner_id: int) -> None:
+        query = delete(Template).where((Template.trigger == trigger) & (owner_id == owner_id))
+        async with self.session.begin():
+            await self.session.execute(query)
 
     async def create(
         self, trigger: str, owner_id: int,

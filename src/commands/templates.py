@@ -13,7 +13,7 @@ from .filters import ParseDataFromReply, ParseDataFromFwd
 @command_manager.register(
     ParseDataFromReply() | ParseDataFromFwd(), name='add_template', module='templates',
     aliases=['addtemplate', 'template+', 'добавитьшаблон', 'шаблон+'], priority=Priority.MEDIUM,
-    args_syntax=r'(?P<trigger>\w+)'
+    args_syntax=r'(?P<trigger>.+)'
 )
 class AddTemplateHandler(BaseHandler):
     async def execute(
@@ -45,6 +45,47 @@ class AddTemplateHandler(BaseHandler):
         )
         return CommandResponse(
             response=f'[📖] Шаблон с названием «{trigger}» успешно добавлен.'
+        )
+
+
+@command_manager.register(
+    name='get_templates', module='templates', aliases=['templates', 'шаблоны'],
+    priority=Priority.MEDIUM
+)
+class GetTemplatesHandler(BaseHandler):
+    async def execute(self, gateway: HolderGateway, session: Session) -> 'CommandResponse':
+        # TODO: Добавить количество вложений у шаблона
+        templates = await gateway.template.get_triggers_by_owner_id(session.owner_id)
+        response = []
+        for index, template in enumerate(templates):
+            response.append(f'{index + 1}. {template}\n')
+        answer = '\n'.join(response)
+        return CommandResponse(
+            response=f'[📜] Список ваших шаблонов: \n{answer}'
+        )
+
+
+@command_manager.register(
+    name='delete_template', module='templates',
+    aliases=['template-', 'deltemplate', 'шаблон-', 'удалитьшаблон'],
+    priority=Priority.MEDIUM, args_syntax='(?P<trigger>.+)'
+)
+class DeleteTemplateHandler(BaseHandler):
+    async def execute(
+        self,
+        gateway: HolderGateway,
+        session: Session,
+        trigger: str
+    ) -> 'CommandResponse':
+        owner_id = session.owner_id
+        template = await gateway.template.get(trigger=trigger, owner_id=owner_id)
+        if not template:
+            return CommandResponse(
+                response=f'[⚠] Шаблон с названием «{trigger}» не существует.'
+            )
+        await gateway.template.delete(trigger=trigger, owner_id=owner_id)
+        return CommandResponse(
+            response=f'[📕] Шаблон успешно удален.'
         )
 
 
