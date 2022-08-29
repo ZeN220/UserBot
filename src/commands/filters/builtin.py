@@ -107,7 +107,12 @@ class ParseDataFromReply(BaseFilter):
         )).response.items[0]
         return FilterResult(
             result=True,
-            context={'text': message.text, 'attachments': message.attachments}
+            context={
+                'text': message.text,
+                'attachments': message.attachments,
+                'message_id': message.id,
+                'conversation_message_id': message.conversation_message_id
+            }
         )
 
 
@@ -121,7 +126,12 @@ class ParseDataFromFwd(BaseFilter):
         )).response.items[0].fwd_messages[0]
         return FilterResult(
             result=True,
-            context={'text': message.text, 'attachments': message.attachments}
+            context={
+                'text': message.text,
+                'attachments': message.attachments,
+                'message_id': message.id,
+                'conversation_message_id': message.conversation_message_id
+            }
         )
 
 
