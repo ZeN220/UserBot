@@ -2,7 +2,7 @@ from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from dispatching import Dispatcher
+from src.dispatching import Dispatcher
 from src.services import SessionGateway
 from src.sessions import Session, InvalidSessionError
 
