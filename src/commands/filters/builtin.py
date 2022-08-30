@@ -1,21 +1,18 @@
 import json
 import re
-from typing import TYPE_CHECKING, Optional, List
+from typing import Optional, List
 
 from vkwave.api import APIOptionsRequestContext
 
 from src.dispatching import UserEvent
 from .base import BaseFilter, FilterResult
 
-if TYPE_CHECKING:
-    from src.commands.base.command import Command
-
 
 class ParseUserFilter(BaseFilter):
     USER_MENTION_REGEXP = re.compile(r'\[id(\d+)\|.+]')
     USER_URL_REGEXP = re.compile(r'vk\.com/(.+)')
 
-    async def check(self, event: UserEvent, command: 'Command') -> FilterResult:
+    async def check(self, event: UserEvent) -> FilterResult:
         user_context = event.session.user.api_context
         message_object = event.object.object
         marked_users = message_object.message_data.marked_users
@@ -36,10 +33,6 @@ class ParseUserFilter(BaseFilter):
                 message_object.message_id, user_context
             )
             return FilterResult(result=True, context={'users_ids': users_ids})
-        await event.session.send_service_message(
-            f'[⚠] При попытке выполнить команду «{command.name}» '
-            f'не удалось получить пользователя, на которого она будет действовать.'
-        )
         return FilterResult(result=False)
 
     @staticmethod
@@ -96,7 +89,7 @@ class ParseUserFilter(BaseFilter):
 
 
 class ParseDataFromReply(BaseFilter):
-    async def check(self, event: UserEvent, command: 'Command') -> FilterResult:
+    async def check(self, event: UserEvent) -> FilterResult:
         reply = event.object.object.extra_message_data.get('reply')
         if not reply:
             return FilterResult(result=False)
@@ -117,7 +110,7 @@ class ParseDataFromReply(BaseFilter):
 
 
 class ParseDataFromFwd(BaseFilter):
-    async def check(self, event: UserEvent, command: 'Command') -> FilterResult:
+    async def check(self, event: UserEvent) -> FilterResult:
         fwd = event.object.object.extra_message_data.get('fwd')
         if not fwd:
             return FilterResult(result=False)
@@ -139,6 +132,6 @@ class ConversationFilter(BaseFilter):
     def __init__(self, from_chat: bool):
         self.from_chat = from_chat
 
-    async def check(self, event: UserEvent, command: 'Command') -> FilterResult:
+    async def check(self, event: UserEvent) -> FilterResult:
         # Если сообщение пришло в личные сообщения, то поле from_id будет равняться None
         return FilterResult(result=event.object.object.message_data.from_id and self.from_chat)

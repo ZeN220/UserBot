@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Tuple, Optional, Dict, Any
+from typing import TYPE_CHECKING, Optional, Dict, Any
 import inspect
 import re
 
 from src.dispatching import UserEvent
 from .errors import NotEnoughArgs
 from .types import CommandArgs, CommandResponse
+from src.commands.filters import FilterManager
 
 if TYPE_CHECKING:
     from .command import Command
@@ -18,15 +19,17 @@ class BaseHandler(ABC):
     def __init__(self, command: 'Command'):
         self.command = command
         self.handler_args = inspect.getfullargspec(self.execute)
+        self.filter_manager = FilterManager(list(self.command.filters))
 
     @abstractmethod
     async def execute(self, **kwargs) -> 'CommandResponse':
         ...
 
     async def run(self, event: UserEvent, **kwargs) -> Optional['CommandResponse']:
-        filters_result, context = await self.check_filters(event)
-        if not filters_result:
+        filters_response = await self.filter_manager.check_filters(event)
+        if not filters_response.result:
             return
+        context = filters_response.context
 
         if self.command.args_syntax:
             text = event.object.object.text[1:].lstrip()
@@ -41,16 +44,6 @@ class BaseHandler(ABC):
         context = self._prepare_kwargs(context)
 
         return await self.execute(**context)
-
-    async def check_filters(self, event: 'UserEvent') -> Tuple[bool, dict]:
-        context = {}
-        for filter_ in self.command.filters:
-            response = await filter_.check(event, self.command)
-            if response.result:
-                context.update(response.context)
-                continue
-            return False, {}
-        return True, context
 
     def parse_args(self, text: str) -> Optional[CommandArgs]:
         patterns = self.command.args_syntax

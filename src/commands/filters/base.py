@@ -1,12 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 
 from src.dispatching import UserEvent
-
-if TYPE_CHECKING:
-    from src.commands.base.command import Command
 
 
 class FilterResult(BaseModel):
@@ -16,7 +12,7 @@ class FilterResult(BaseModel):
 
 class BaseFilter(ABC):
     @abstractmethod
-    async def check(self, event: UserEvent, command: 'Command') -> FilterResult:
+    async def check(self, event: UserEvent) -> FilterResult:
         ...
 
     def __or__(self, other: 'BaseFilter'):
@@ -27,9 +23,9 @@ class OrFilter(BaseFilter):
     def __init__(self, *filters: BaseFilter):
         self.filters = filters
 
-    async def check(self, event: UserEvent, command: 'Command') -> FilterResult:
+    async def check(self, event: UserEvent) -> FilterResult:
         for filter_ in self.filters:
-            response = await filter_.check(event, command)
+            response = await filter_.check(event)
             if response.result:
                 return FilterResult(result=True, context=response.context)
         return FilterResult(result=False)

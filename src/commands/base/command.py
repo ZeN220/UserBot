@@ -21,9 +21,9 @@ class Command:
     ):
         self.name = name
         self.aliases = aliases
+        self.filters = filters or []
         self.handler = handler(command=self)
         self.priority = priority
-        self.filters = filters
         if isinstance(args_syntax, list):
             self.args_syntax = [re.compile(syntax) for syntax in args_syntax]
         else:
