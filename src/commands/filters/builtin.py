@@ -25,7 +25,7 @@ class ParseUserFilter(BaseFilter):
             return FilterResult(result=True, context={'user_id': from_text})
 
         extra = message_object.extra_message_data
-        if extra.get('reply'):
+        if extra.get('reply') is not None:
             user_id = await self.parse_from_reply(message_object.message_id, user_context)
             return FilterResult(result=True, context={'user_id': user_id})
 
