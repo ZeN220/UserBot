@@ -4,6 +4,7 @@ from typing import Optional, List
 
 from vkwave.api import APIOptionsRequestContext
 
+from src.sessions import SessionManager
 from src.dispatching import UserEvent
 from .base import BaseFilter, FilterResult
 
@@ -135,3 +136,8 @@ class ConversationFilter(BaseFilter):
     async def check(self, event: UserEvent) -> FilterResult:
         # Если сообщение пришло в личные сообщения, то поле from_id будет равняться None
         return FilterResult(result=event.object.object.message_data.from_id and self.from_chat)
+
+
+class MainSessionFilter(BaseFilter):
+    async def check(self, event: UserEvent) -> FilterResult:
+        return FilterResult(result=SessionManager.main_session == event.session)
