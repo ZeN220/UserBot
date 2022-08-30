@@ -26,15 +26,12 @@ class CommandManager:
         name: str,
         module: str,
         aliases: List[str],
-        priority: int,
+        priority: int = 50,
         args_syntax: Optional[Union[str, List[str]]] = None,
     ):
         def decorator(handler: Type['BaseHandler']):
-            command = Command(
-                name=name, module=module, aliases=aliases,
-                priority=priority, args_syntax=args_syntax, handler=handler,
-                *filters
-            )
+            command = Command(*filters, name=name, module=module, aliases=aliases, handler=handler,
+                              priority=priority, args_syntax=args_syntax)
             cls.add_command(command)
             return command
         return decorator

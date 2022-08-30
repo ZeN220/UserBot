@@ -12,7 +12,7 @@ from .filters import ParseDataFromReply, ParseDataFromFwd
 
 @command_manager.register(
     ParseDataFromReply() | ParseDataFromFwd(), name='add_template', module='templates',
-    aliases=['addtemplate', 'template+', 'добавитьшаблон', 'шаблон+'], priority=Priority.MEDIUM,
+    aliases=['addtemplate', 'template+', 'добавитьшаблон', 'шаблон+'],
     args_syntax=r'(?P<trigger>.+)'
 )
 class AddTemplateHandler(BaseHandler):
@@ -53,8 +53,7 @@ class AddTemplateHandler(BaseHandler):
 
 
 @command_manager.register(
-    name='get_templates', module='templates', aliases=['templates', 'шаблоны'],
-    priority=Priority.MEDIUM
+    name='get_templates', module='templates', aliases=['templates', 'шаблоны']
 )
 class GetTemplatesHandler(BaseHandler):
     async def execute(self, gateway: HolderGateway, session: Session) -> 'CommandResponse':
@@ -78,7 +77,7 @@ class GetTemplatesHandler(BaseHandler):
 @command_manager.register(
     name='delete_template', module='templates',
     aliases=['template-', 'deltemplate', 'шаблон-', 'удалитьшаблон'],
-    priority=Priority.MEDIUM, args_syntax='(?P<trigger>.+)'
+    args_syntax='(?P<trigger>.+)'
 )
 class DeleteTemplateHandler(BaseHandler):
     async def execute(

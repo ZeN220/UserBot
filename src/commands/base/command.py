@@ -17,7 +17,7 @@ class Command:
         module: str,
         aliases: List[str],
         handler: Type['BaseHandler'],
-        priority: int,
+        priority: int = 50,
         args_syntax: Optional[Union[str, List[str]]] = None,
     ):
         self.name = name

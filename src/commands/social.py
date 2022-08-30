@@ -9,7 +9,7 @@ from src.dispatching import UserEvent
 
 @command_manager.register(
     ParseUserFilter(), name='add_friend', module='social',
-    aliases=['др+', 'друг+', 'fr+', 'friend+'], priority=Priority.MEDIUM, args_syntax=[r'(\d+)', '']
+    aliases=['др+', 'друг+', 'fr+', 'friend+'], args_syntax=[r'(\d+)', '']
 )
 class AddFriendHandler(BaseHandler):
     async def execute(
@@ -31,7 +31,7 @@ class AddFriendHandler(BaseHandler):
 
 @command_manager.register(
     ParseUserFilter(), name='remove_friend', module='social',
-    aliases=['др-', 'друг-', 'fr-', 'friend-'], priority=Priority.MEDIUM, args_syntax=[r'(\d+)', '']
+    aliases=['др-', 'друг-', 'fr-', 'friend-'], args_syntax=[r'(\d+)', '']
 )
 class RemoveFriendHandler(BaseHandler):
     async def execute(
@@ -53,7 +53,7 @@ class RemoveFriendHandler(BaseHandler):
 
 @command_manager.register(
     ParseUserFilter(), name='add_block', module='social',
-    aliases=['чс+', 'блок+', 'bl+', 'block+'], priority=Priority.MEDIUM, args_syntax=[r'(\d+)', '']
+    aliases=['чс+', 'блок+', 'bl+', 'block+'], args_syntax=[r'(\d+)', '']
 )
 class AddBlockHandler(BaseHandler):
     async def execute(
@@ -75,7 +75,7 @@ class AddBlockHandler(BaseHandler):
 
 @command_manager.register(
     ParseUserFilter(), name='remove_block', module='social',
-    aliases=['чс-', 'блок-', 'bl-', 'block-'], priority=Priority.MEDIUM, args_syntax=[r'(\d+)', '']
+    aliases=['чс-', 'блок-', 'bl-', 'block-'], args_syntax=[r'(\d+)', '']
 )
 class RemoveBlockHandler(BaseHandler):
     async def execute(
@@ -97,7 +97,7 @@ class RemoveBlockHandler(BaseHandler):
 
 @command_manager.register(
     ParseUserFilter(), ConversationFilter(from_chat=True), name='invite', module='social',
-    aliases=['invite', 'добавить'], args_syntax=[r'(\d+)', ''], priority=Priority.MEDIUM
+    aliases=['invite', 'добавить'], args_syntax=[r'(\d+)', '']
 )
 class InviteHandler(BaseHandler):
     async def execute(

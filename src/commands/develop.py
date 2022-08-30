@@ -8,8 +8,7 @@ from .filters import ParseUserFilter, ParseDataFromFwd, ParseDataFromReply
 
 
 @command_manager.register(
-    name='get_peer_id', module='develop', aliases=['peer', 'пир'],
-    priority=Priority.MEDIUM
+    name='get_peer_id', module='develop', aliases=['peer', 'пир']
 )
 class GetPeerIDHandler(BaseHandler):
     async def execute(self, event: UserEvent) -> 'CommandResponse':
@@ -20,7 +19,7 @@ class GetPeerIDHandler(BaseHandler):
 
 @command_manager.register(
     ParseUserFilter(), name='get_user_id', module='develop', aliases=['user', 'пользователь'],
-    priority=Priority.MEDIUM, args_syntax=[r'(\d+)', '']
+    args_syntax=[r'(\d+)', '']
 )
 class GetUserIDHandler(BaseHandler):
     async def execute(
@@ -42,7 +41,7 @@ class GetUserIDHandler(BaseHandler):
 
 @command_manager.register(
     ParseDataFromReply() | ParseDataFromFwd(), name='get_message_id', module='develop',
-    aliases=['message_id', 'ид_сообщения'], priority=Priority.MEDIUM
+    aliases=['message_id', 'ид_сообщения']
 )
 class GetMessageIDHandler(BaseHandler):
     async def execute(self, message_id: int, conversation_message_id: int) -> 'CommandResponse':
@@ -53,8 +52,7 @@ class GetMessageIDHandler(BaseHandler):
 
 
 @command_manager.register(
-    name='get_message_json', module='develop', aliases=['json', 'жсон'],
-    priority=Priority.MEDIUM
+    name='get_message_json', module='develop', aliases=['json', 'жсон']
 )
 class GetMessageJSONHandler(BaseHandler):
     async def execute(self, event: UserEvent) -> 'CommandResponse':

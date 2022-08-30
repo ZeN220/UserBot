@@ -19,7 +19,7 @@ return {"dialogs": dialogs, "count": dialogs.length};
 
 @command_manager.register(
     name='read_dialogs', module='dialogs',
-    aliases=['read', 'чтение'], priority=Priority.MEDIUM
+    aliases=['read', 'чтение']
 )
 class ReadDialogsHandler(BaseHandler):
     async def execute(self, api_context: APIOptionsRequestContext) -> 'CommandResponse':
