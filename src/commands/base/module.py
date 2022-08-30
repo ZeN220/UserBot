@@ -1,9 +1,8 @@
 from typing import List, Optional, Type, Union
 
 from src.commands.filters.base import BaseFilter
-
-from .handler import BaseHandler
 from .command import Command
+from .handler import BaseHandler
 
 
 class Module:
@@ -22,7 +21,7 @@ class Module:
         priority: int = 50,
         args_syntax: Optional[Union[str, List[str]]] = None,
     ):
-        def decorator(handler: Type['BaseHandler']):
+        def decorator(handler: Type[BaseHandler]):
             command = Command(*filters, name=name, aliases=aliases, handler=handler,
                               priority=priority, args_syntax=args_syntax)
             self.add_command(command)
