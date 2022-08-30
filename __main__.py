@@ -4,11 +4,13 @@ import logging
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
+from src.commands import templates_module, social_module, dialogs_module, develop_module, \
+    chats_module
 from src.commands.base.manager import ModulesManager
-from src.commands import templates_module, social_module, dialogs_module, develop_module
 from src.config import Config
-from src.dispatching import Dispatcher, ResultCaster, CASTERS
+from src.dispatching import Dispatcher
 from src.dispatching.middlewares import DatabaseMiddleware, EnvironmentMiddleware
+from src.dispatching.result_caster import ResultCaster, CASTERS
 from src.routers import new_message_router
 from src.sessions import Session, SessionManager
 from src.sessions.from_database import load_sessions_from_database
@@ -28,6 +30,7 @@ async def main():
     modules_manager.add_module(dialogs_module)
     modules_manager.add_module(social_module)
     modules_manager.add_module(templates_module)
+    modules_manager.add_module(chats_module)
 
     caster = ResultCaster()
     dispatcher = Dispatcher(result_caster=caster)

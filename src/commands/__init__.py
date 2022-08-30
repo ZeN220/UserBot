@@ -1,3 +1,4 @@
+from .chats import chats_module
 from .develop import develop_module
 from .dialogs import dialogs_module
 from .social import social_module
