@@ -1,10 +1,14 @@
 from typing import Optional, List
 from enum import Enum
 import json
+import time
+
+from vkwave.api import APIOptionsRequestContext
 
 from src.dispatching import UserEvent
+from src.services import HolderGateway
 from .base import CommandResponse, BaseHandler, Module
-from .filters import ParseUserFilter, ParseDataFromFwd, ParseDataFromReply
+from .filters import ParseUserFilter, ParseDataFromFwd, ParseDataFromReply, MainSessionFilter
 
 develop_module = Module('develop')
 
@@ -64,6 +68,7 @@ class GetMessageJSONHandler(BaseHandler):
             conversation_message_ids=reply_message_id, peer_id=event.object.object.peer_id
         )
         model = reply_message.response.items[0].dict()
+
         try:
             result = self.validate_dict_to_json(model)
             return CommandResponse(response=result)
@@ -93,3 +98,39 @@ class GetMessageJSONHandler(BaseHandler):
         self.remove_enums_from_dict(dict_object)
         response = json.dumps(dict_object, indent=4, ensure_ascii=False)
         return response
+
+
+@develop_module.register(
+    MainSessionFilter(), name='sql_eval', aliases=['sql', 'скл'],
+    args_syntax='(?P<query>.+)'
+)
+class SQLEvalHandler(BaseHandler):
+    async def execute(self, query: str, gateway: HolderGateway) -> 'CommandResponse':
+        start_time = time.time()
+        response = await gateway.run_raw_query(query)
+        response = self.validate_list_to_json(response)
+        end_time = time.time() - start_time
+        return CommandResponse(
+            response=f'[🗂] Результат выполнения запроса: \n\n{response}\n\n '
+                     f'Затрачено времени: {end_time:.3f}s'
+        )
+
+    @staticmethod
+    def validate_list_to_json(response: list) -> str:
+        result = [list(element) for element in response]
+        result = json.dumps(result, indent=4, ensure_ascii=False)
+        return result
+
+
+@develop_module.register(
+    name='ping', aliases=['ping', 'пинг']
+)
+class PingHandler(BaseHandler):
+    async def execute(self, api_context: APIOptionsRequestContext) -> 'CommandResponse':
+        start_time = time.time()
+        await api_context.users.get()
+        end_time = time.time()
+        result = end_time - start_time
+        return CommandResponse(
+            response=f'[⏰] Задержка до VK API составляет: {result:.3f} s'
+        )
