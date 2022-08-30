@@ -29,7 +29,8 @@ class BaseHandler(ABC):
             return
 
         if self.command.args_syntax:
-            arguments = TEXT_WITHOUT_COMMAND_REGEXP.sub('', event.object.object.text)
+            text = event.object.object.text[1:].lstrip()
+            arguments = TEXT_WITHOUT_COMMAND_REGEXP.sub('', text)
             command_args = self.parse_args(arguments)
             if not command_args:
                 raise NotEnoughArgs(self.command.name, event.session.owner_id)
