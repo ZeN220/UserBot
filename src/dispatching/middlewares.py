@@ -17,3 +17,12 @@ class DatabaseMiddleware(BaseMiddleware):
 
     async def post_process_event(self, event: UserEvent):
         await event['session'].close()
+
+
+class EnvironmentMiddleware(BaseMiddleware):
+    def __init__(self, **kwargs):
+        self.environment = kwargs
+
+    async def pre_process_event(self, event: UserEvent) -> MiddlewareResult:
+        event.user_data.update(self.environment)
+        return MiddlewareResult(True)
