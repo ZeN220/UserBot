@@ -3,7 +3,7 @@ import logging
 
 from vkwave.bots.core.dispatching.dp import BaseResultCaster
 
-from src.commands import CommandResponse
+from src.commands.base import CommandResponse
 from .event import UserEvent
 
 logger = logging.getLogger(__name__)
