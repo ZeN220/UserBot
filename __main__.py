@@ -4,11 +4,11 @@ import logging
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from src.commands.base.manage import CommandManager
+from src.commands.base.manager import ModulesManager
+from src.commands import templates_module, social_module, dialogs_module, develop_module
 from src.config import Config
-from src.dispatching import Dispatcher
-from src.dispatching.middlewares import DatabaseMiddleware
-from src.dispatching.result_caster import ResultCaster, CASTERS
+from src.dispatching import Dispatcher, ResultCaster, CASTERS
+from src.dispatching.middlewares import DatabaseMiddleware, EnvironmentMiddleware
 from src.routers import new_message_router
 from src.sessions import Session, SessionManager
 from src.sessions.from_database import load_sessions_from_database
@@ -23,11 +23,20 @@ async def main():
     # в будущем стоит использовать DTO
     session_maker = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
 
+    modules_manager = ModulesManager()
+    modules_manager.add_module(develop_module)
+    modules_manager.add_module(dialogs_module)
+    modules_manager.add_module(social_module)
+    modules_manager.add_module(templates_module)
+
     caster = ResultCaster()
     dispatcher = Dispatcher(result_caster=caster)
     caster.casters = CASTERS
     dispatcher.add_router(new_message_router)
     dispatcher.add_middleware(DatabaseMiddleware(session_maker))
+    dispatcher.add_middleware(EnvironmentMiddleware(
+        modules_manager=modules_manager
+    ))
 
     owner_session = await Session.create_from_tokens(
         user_token=config.vk.user_token,
@@ -40,8 +49,6 @@ async def main():
     for session in sessions:
         SessionManager.add_session(session)
     SessionManager.add_session(owner_session, is_main=True)
-
-    CommandManager.setup_commands()
 
     await SessionManager.run_all_polling(dispatcher)
 

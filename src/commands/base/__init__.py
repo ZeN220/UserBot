@@ -1,3 +1,4 @@
 from .handler import BaseHandler
-from .manage import command_manager
+from .manager import ModulesManager
+from .module import Module
 from .types import Priority, CommandResponse

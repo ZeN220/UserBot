@@ -3,12 +3,14 @@ from enum import Enum
 import json
 
 from src.dispatching import UserEvent
-from .base import CommandResponse, command_manager, BaseHandler, Priority
+from .base import CommandResponse, BaseHandler, Module
 from .filters import ParseUserFilter, ParseDataFromFwd, ParseDataFromReply
 
+develop_module = Module('develop')
 
-@command_manager.register(
-    name='get_peer_id', module='develop', aliases=['peer', 'пир']
+
+@develop_module.register(
+    name='get_peer_id', aliases=['peer', 'пир']
 )
 class GetPeerIDHandler(BaseHandler):
     async def execute(self, event: UserEvent) -> 'CommandResponse':
@@ -17,8 +19,8 @@ class GetPeerIDHandler(BaseHandler):
         )
 
 
-@command_manager.register(
-    ParseUserFilter(), name='get_user_id', module='develop', aliases=['user', 'пользователь'],
+@develop_module.register(
+    ParseUserFilter(), name='get_user_id', aliases=['user', 'пользователь'],
     args_syntax=[r'(\d+)', '']
 )
 class GetUserIDHandler(BaseHandler):
@@ -39,8 +41,8 @@ class GetUserIDHandler(BaseHandler):
         )
 
 
-@command_manager.register(
-    ParseDataFromReply() | ParseDataFromFwd(), name='get_message_id', module='develop',
+@develop_module.register(
+    ParseDataFromReply() | ParseDataFromFwd(), name='get_message_id',
     aliases=['message_id', 'ид_сообщения']
 )
 class GetMessageIDHandler(BaseHandler):
@@ -51,8 +53,8 @@ class GetMessageIDHandler(BaseHandler):
         )
 
 
-@command_manager.register(
-    name='get_message_json', module='develop', aliases=['json', 'жсон']
+@develop_module.register(
+    name='get_message_json', aliases=['json', 'жсон']
 )
 class GetMessageJSONHandler(BaseHandler):
     async def execute(self, event: UserEvent) -> 'CommandResponse':

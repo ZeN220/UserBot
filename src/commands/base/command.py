@@ -14,14 +14,12 @@ class Command:
         self,
         *filters: BaseFilter,
         name: str,
-        module: str,
         aliases: List[str],
         handler: Type['BaseHandler'],
         priority: int = 50,
         args_syntax: Optional[Union[str, List[str]]] = None,
     ):
         self.name = name
-        self.module = module
         self.aliases = aliases
         self.handler = handler(command=self)
         self.priority = priority

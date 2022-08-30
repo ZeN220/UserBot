@@ -6,12 +6,14 @@ from vkwave.types.objects import MessagesMessageAttachment
 
 from src.services import HolderGateway
 from src.sessions import Session
-from .base import command_manager, CommandResponse, BaseHandler, Priority
+from .base import Module, CommandResponse, BaseHandler
 from .filters import ParseDataFromReply, ParseDataFromFwd
 
+templates_module = Module('templates')
 
-@command_manager.register(
-    ParseDataFromReply() | ParseDataFromFwd(), name='add_template', module='templates',
+
+@templates_module.register(
+    ParseDataFromReply() | ParseDataFromFwd(), name='add_template',
     aliases=['addtemplate', 'template+', 'добавитьшаблон', 'шаблон+'],
     args_syntax=r'(?P<trigger>.+)'
 )
@@ -52,8 +54,8 @@ class AddTemplateHandler(BaseHandler):
         )
 
 
-@command_manager.register(
-    name='get_templates', module='templates', aliases=['templates', 'шаблоны']
+@templates_module.register(
+    name='get_templates', aliases=['templates', 'шаблоны']
 )
 class GetTemplatesHandler(BaseHandler):
     async def execute(self, gateway: HolderGateway, session: Session) -> 'CommandResponse':
@@ -74,8 +76,8 @@ class GetTemplatesHandler(BaseHandler):
         )
 
 
-@command_manager.register(
-    name='delete_template', module='templates',
+@templates_module.register(
+    name='delete_template',
     aliases=['template-', 'deltemplate', 'шаблон-', 'удалитьшаблон'],
     args_syntax='(?P<trigger>.+)'
 )

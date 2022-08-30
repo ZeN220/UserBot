@@ -1,7 +1,7 @@
 from vkwave.bots import DefaultRouter, FromMeFilter
 import re
 
-from src.commands.base.manage import CommandManager
+from src.commands.base.manager import ModulesManager
 from src.commands.base.errors import NotEnoughArgs
 from src.dispatching import UserEvent
 from src.dispatching.filters import TemplateFilter, PrefixFilter, EventTypeFilter
@@ -35,10 +35,11 @@ async def send_template(event: UserEvent):
 
 @new_message_router.registrar.with_decorator(PrefixFilter())
 async def execute_command(event: UserEvent):
-    event.object.object.text = event.object.object.text[1:].lstrip()
-    command = CommandManager.find_command(
+    manager: ModulesManager = event['modules_manager']
+    text = event.object.object.text[1:].lstrip()
+    command = manager.find_command(
         session=event.session,
-        text=event.object.object.text
+        text=text
     )
     if command is None:
         return

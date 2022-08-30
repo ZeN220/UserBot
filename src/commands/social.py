@@ -2,13 +2,15 @@ from typing import List, Optional
 
 from vkwave.api import APIOptionsRequestContext
 
-from .base import command_manager, CommandResponse, BaseHandler, Priority
+from .base import Module, CommandResponse, BaseHandler, Priority
 from .filters import ParseUserFilter, ConversationFilter
 from src.dispatching import UserEvent
 
+social_module = Module('social')
 
-@command_manager.register(
-    ParseUserFilter(), name='add_friend', module='social',
+
+@social_module.register(
+    ParseUserFilter(), name='add_friend',
     aliases=['др+', 'друг+', 'fr+', 'friend+'], args_syntax=[r'(\d+)', '']
 )
 class AddFriendHandler(BaseHandler):
@@ -29,8 +31,8 @@ class AddFriendHandler(BaseHandler):
         )
 
 
-@command_manager.register(
-    ParseUserFilter(), name='remove_friend', module='social',
+@social_module.register(
+    ParseUserFilter(), name='remove_friend',
     aliases=['др-', 'друг-', 'fr-', 'friend-'], args_syntax=[r'(\d+)', '']
 )
 class RemoveFriendHandler(BaseHandler):
@@ -51,8 +53,8 @@ class RemoveFriendHandler(BaseHandler):
         )
 
 
-@command_manager.register(
-    ParseUserFilter(), name='add_block', module='social',
+@social_module.register(
+    ParseUserFilter(), name='add_block',
     aliases=['чс+', 'блок+', 'bl+', 'block+'], args_syntax=[r'(\d+)', '']
 )
 class AddBlockHandler(BaseHandler):
@@ -73,8 +75,8 @@ class AddBlockHandler(BaseHandler):
         )
 
 
-@command_manager.register(
-    ParseUserFilter(), name='remove_block', module='social',
+@social_module.register(
+    ParseUserFilter(), name='remove_block',
     aliases=['чс-', 'блок-', 'bl-', 'block-'], args_syntax=[r'(\d+)', '']
 )
 class RemoveBlockHandler(BaseHandler):
@@ -95,8 +97,8 @@ class RemoveBlockHandler(BaseHandler):
         )
 
 
-@command_manager.register(
-    ParseUserFilter(), ConversationFilter(from_chat=True), name='invite', module='social',
+@social_module.register(
+    ParseUserFilter(), ConversationFilter(from_chat=True), name='invite',
     aliases=['invite', 'добавить'], args_syntax=[r'(\d+)', '']
 )
 class InviteHandler(BaseHandler):
@@ -124,8 +126,8 @@ class InviteHandler(BaseHandler):
         )
 
 
-@command_manager.register(
-    ParseUserFilter(), ConversationFilter(from_chat=True), name='kick', module='social',
+@social_module.register(
+    ParseUserFilter(), ConversationFilter(from_chat=True), name='kick',
     aliases=['kick', 'кик'], priority=Priority.HIGH, args_syntax=[r'(\d+)', '']
 )
 class KickHandler(BaseHandler):

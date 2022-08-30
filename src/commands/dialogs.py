@@ -2,7 +2,9 @@ import time
 
 from vkwave.api import APIOptionsRequestContext
 
-from .base import command_manager, CommandResponse, BaseHandler, Priority
+from .base import CommandResponse, BaseHandler, Module
+
+dialogs_module = Module('dialogs')
 
 execute_code = """
 var dialogs = API.messages.getConversations({"count": 200, "filter": "unread"}).items;
@@ -17,9 +19,8 @@ return {"dialogs": dialogs, "count": dialogs.length};
 """
 
 
-@command_manager.register(
-    name='read_dialogs', module='dialogs',
-    aliases=['read', 'чтение']
+@dialogs_module.register(
+    name='read_dialogs', aliases=['read', 'чтение']
 )
 class ReadDialogsHandler(BaseHandler):
     async def execute(self, api_context: APIOptionsRequestContext) -> 'CommandResponse':
