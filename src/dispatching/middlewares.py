@@ -1,3 +1,5 @@
+import html
+
 from vkwave.bots import MiddlewareResult, BaseMiddleware
 from sqlalchemy.orm import sessionmaker
 
@@ -25,4 +27,12 @@ class EnvironmentMiddleware(BaseMiddleware):
 
     async def pre_process_event(self, event: UserEvent) -> MiddlewareResult:
         event.user_data.update(self.environment)
+        return MiddlewareResult(True)
+
+
+class TextShieldingMiddleware(BaseMiddleware):
+    async def pre_process_event(self, event: UserEvent) -> MiddlewareResult:
+        text = event.object.dict().get('object').get('text')
+        if text is not None:
+            event.object.object.text = html.unescape(text)
         return MiddlewareResult(True)

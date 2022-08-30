@@ -9,7 +9,8 @@ from src.commands import templates_module, social_module, dialogs_module, develo
 from src.commands.base.manager import ModulesManager
 from src.config import Config
 from src.dispatching import Dispatcher
-from src.dispatching.middlewares import DatabaseMiddleware, EnvironmentMiddleware
+from src.dispatching.middlewares import DatabaseMiddleware, EnvironmentMiddleware, \
+    TextShieldingMiddleware
 from src.dispatching.result_caster import ResultCaster, CASTERS
 from src.routers import new_message_router
 from src.sessions import Session, SessionManager
@@ -40,6 +41,7 @@ async def main():
     dispatcher.add_middleware(EnvironmentMiddleware(
         modules_manager=modules_manager
     ))
+    dispatcher.add_middleware(TextShieldingMiddleware())
 
     owner_session = await Session.create_from_tokens(
         user_token=config.vk.user_token,
