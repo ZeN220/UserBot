@@ -106,10 +106,10 @@ class GetMessageJSONHandler(BaseHandler):
 )
 class SQLEvalHandler(BaseHandler):
     async def execute(self, query: str, gateway: HolderGateway) -> 'CommandResponse':
-        start_time = time.time()
+        start_time = time.perf_counter()
         response = await gateway.run_raw_query(query)
         response = self.validate_list_to_json(response)
-        end_time = time.time() - start_time
+        end_time = time.perf_counter() - start_time
         return CommandResponse(
             response=f'[🗂] Результат выполнения запроса: \n\n{response}\n\n '
                      f'Затрачено времени: {end_time:.3f}s'
@@ -127,10 +127,9 @@ class SQLEvalHandler(BaseHandler):
 )
 class PingHandler(BaseHandler):
     async def execute(self, api_context: APIOptionsRequestContext) -> 'CommandResponse':
-        start_time = time.time()
+        start_time = time.perf_counter()
         await api_context.users.get()
-        end_time = time.time()
-        result = end_time - start_time
+        end_time = time.perf_counter() - start_time
         return CommandResponse(
-            response=f'[⏰] Задержка до VK API составляет: {result:.3f} s'
+            response=f'[⏰] Задержка до VK API составляет: {end_time:.3f}s'
         )

@@ -24,12 +24,12 @@ return {"dialogs": dialogs, "count": dialogs.length};
 )
 class ReadDialogsHandler(BaseHandler):
     async def execute(self, api_context: APIOptionsRequestContext) -> 'CommandResponse':
-        start_time = time.time()
+        start_time = time.perf_counter()
         count_read_dialogs = await read_all_dialogs(api_context)
-        result = time.time() - start_time
+        end_time = time.perf_counter() - start_time
         return CommandResponse(
             response=f'[📭] Было успешно прочитано {count_read_dialogs} '
-                     f'диалогов за {result:.3f} секунд.'
+                     f'диалогов за {end_time:.3f} секунд.'
         )
 
 
