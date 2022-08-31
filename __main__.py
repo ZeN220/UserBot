@@ -10,7 +10,7 @@ from src.commands.base.manager import ModulesManager
 from src.config import Config
 from src.dispatching import Dispatcher
 from src.dispatching.middlewares import DatabaseMiddleware, EnvironmentMiddleware, \
-    TextShieldingMiddleware
+    TextShieldingMiddleware, NoneObjectMiddleware
 from src.dispatching.result_caster import ResultCaster, CASTERS
 from src.routers import new_message_router
 from src.sessions import Session, SessionManager
@@ -37,6 +37,7 @@ async def main():
     dispatcher = Dispatcher(result_caster=caster)
     caster.casters = CASTERS
     dispatcher.add_router(new_message_router)
+    dispatcher.add_middleware(NoneObjectMiddleware())
     dispatcher.add_middleware(DatabaseMiddleware(session_maker))
     dispatcher.add_middleware(EnvironmentMiddleware(
         modules_manager=modules_manager

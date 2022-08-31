@@ -7,6 +7,17 @@ from src.dispatching import UserEvent
 from src.services import HolderGateway
 
 
+class NoneObjectMiddleware(BaseMiddleware):
+    async def pre_process_event(self, event: UserEvent) -> MiddlewareResult:
+        """
+        VK API при определенных обстоятельствах может возвращать пустое событие,
+        такие события нужно пропускать
+        """
+        if event.object is None:
+            print(event)
+        return MiddlewareResult(event.object is not None)
+
+
 class DatabaseMiddleware(BaseMiddleware):
     def __init__(self, session_pool: sessionmaker):
         self.session_pool = session_pool
@@ -34,5 +45,7 @@ class TextShieldingMiddleware(BaseMiddleware):
     async def pre_process_event(self, event: UserEvent) -> MiddlewareResult:
         text = event.object.dict().get('object').get('text')
         if text is not None:
-            event.object.object.text = html.unescape(text)
+            # Из-за того, что html.unescape экранирует не все символы,
+            # некоторые приходится дописывать вручную
+            event.object.object.text = html.unescape(text).replace('<br>', '\n')
         return MiddlewareResult(True)
