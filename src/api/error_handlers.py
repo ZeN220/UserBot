@@ -169,5 +169,5 @@ GROUP_ERROR_HANDLERS = {901: cant_send_message_handler}
 
 async def _get_session_from_api_ctx(api_ctx: APIOptionsRequestContext) -> 'Session':
     token = await api_ctx.api_options.get_token()
-    session = SessionManager.get_session_from_token(token)
+    session = SessionManager.get_session_by_user_token(token)
     return session
