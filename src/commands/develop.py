@@ -5,7 +5,7 @@ import json
 import time
 from concurrent.futures import ProcessPoolExecutor
 from enum import Enum
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Literal
 
 from vkwave.api import APIOptionsRequestContext
 
@@ -121,7 +121,7 @@ class PingHandler(BaseHandler):
     args_syntax=r'(?P<type_code>sync|async)\s?\n(?P<code>[\s\S]+)'
 )
 class EvalHandler(BaseHandler):
-    async def execute(self, code: str, type_code: str) -> 'CommandResponse':
+    async def execute(self, code: str, type_code: Literal['sync', 'async']) -> 'CommandResponse':
         """
         WARNING: Из-за создания ProcessPoolExecutor,
         данная команда может медленно работать на Windows OS
