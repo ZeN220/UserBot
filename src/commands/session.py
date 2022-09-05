@@ -1,5 +1,7 @@
 from typing import Optional
 
+from vkwave.api import API
+
 from src.dispatching import Dispatcher
 from src.services import HolderGateway
 from src.sessions import SessionManager, Session, InvalidSessionError
@@ -79,12 +81,17 @@ class GetSessions(BaseHandler):
 
         response = []
         for index, session in enumerate(sessions):
-            owner_id = session.owner_id
             group_id = session.group_id
-            response.append(
-                f'{index + 1}. [[id{owner_id}|{owner_id}]] '
-                f'Привязан к группе [[club{group_id}|club{group_id}]]'
-            )
+            async with API(session.user_token) as user_api, API(session.group_token) as group_api:  # noqa
+                user_api_context = user_api.get_context()
+                group_api_context = group_api.get_context()
+                user_data = (await user_api_context.users.get()).response[0]
+                group_name = (await group_api_context.groups.get_by_id()).response[0].name
+                response.append(
+                    f'{index + 1}. '
+                    f'[id{session.owner_id}|{user_data.first_name} {user_data.last_name}] '
+                    f'привязан к группе [club{group_id}|{group_name}]'
+                )
         response = '\n'.join(response)
         return CommandResponse(
             response=f'[💼] Список активных сессий: \n{response}'
