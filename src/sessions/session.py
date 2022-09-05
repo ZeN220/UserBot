@@ -58,20 +58,23 @@ class User(BaseModel):
 
 
 class Group(BaseModel):
+    group_id: int
+    group_token: str
     api_context: APIOptionsRequestContext
 
     @classmethod
-    def create_from_token(
-        cls, bot_token: str, error_dispatcher: Optional['ErrorDispatcher'] = None
+    async def create_from_token(
+        cls, group_token: str, error_dispatcher: Optional['ErrorDispatcher'] = None
     ) -> 'Group':
         if error_dispatcher is None:
             error_dispatcher = ErrorDispatcher()
             error_dispatcher.handlers = GROUP_ERROR_HANDLERS
             error_dispatcher.set_default_error_handler(default_error_handler)
 
-        token = BotSyncSingleToken(Token(bot_token))
+        token = BotSyncSingleToken(Token(group_token))
         api_context = API(tokens=token, error_dispatcher=error_dispatcher).get_context()
-        return cls(api_context=api_context)
+        result = await api_context.groups.get_by_id()
+        return cls(api_context=api_context, group_token=group_token, group_id=result.response[0].id)
 
     class Config:
         arbitrary_types_allowed = True
@@ -82,7 +85,7 @@ class Session(BaseModel):
     user: User
     group: Group
     commands_prefix: str
-    deactivate_modules: List[str]
+    deactivate_modules: List[str] = []
     delete_command_after: Optional[bool] = True
 
     @classmethod
@@ -91,11 +94,12 @@ class Session(BaseModel):
         user_token: str,
         group_token: str,
         commands_prefix: str,
-        deactivate_modules: List[str],
-        delete_command_after: Optional[bool] = True
+        deactivate_modules: Optional[List[str]] = None,
+        delete_command_after: bool = True
     ) -> 'Session':
         user = await User.create_from_token(user_token)
-        group = Group.create_from_token(group_token)
+        group = await Group.create_from_token(group_token)
+        deactivate_modules = deactivate_modules or []
         return cls(
             user=user, group=group, commands_prefix=commands_prefix,
             delete_command_after=delete_command_after, deactivate_modules=deactivate_modules

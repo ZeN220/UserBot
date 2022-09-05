@@ -7,7 +7,8 @@ from .base import Base
 class SessionModel(Base):
     __tablename__ = 'sessions'
 
-    owner_id = Column(Integer, primary_key=True, unique=True, index=True)
+    owner_id = Column(Integer, primary_key=True, index=True)
+    group_id = Column(Integer, index=True)
     user_token = Column(Text)
     group_token = Column(Text)
     commands_prefix = Column(String(8))

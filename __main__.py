@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 from src.commands import templates_module, social_module, dialogs_module, develop_module, \
-    chats_module
+    chats_module, session_module
 from src.commands.base.manager import ModulesManager
 from src.config import Config
 from src.dispatching import Dispatcher
@@ -32,6 +32,7 @@ async def main():
     modules_manager.add_module(social_module)
     modules_manager.add_module(templates_module)
     modules_manager.add_module(chats_module)
+    modules_manager.add_module(session_module)
 
     caster = ResultCaster()
     dispatcher = Dispatcher(result_caster=caster)
@@ -40,7 +41,7 @@ async def main():
     dispatcher.add_middleware(NoneObjectMiddleware())
     dispatcher.add_middleware(DatabaseMiddleware(session_maker))
     dispatcher.add_middleware(EnvironmentMiddleware(
-        modules_manager=modules_manager
+        modules_manager=modules_manager, dispatcher=dispatcher
     ))
     dispatcher.add_middleware(TextShieldingMiddleware())
 
