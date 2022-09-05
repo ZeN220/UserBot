@@ -33,6 +33,7 @@ async def main():
     modules_manager.add_module(templates_module)
     modules_manager.add_module(chats_module)
     modules_manager.add_module(session_module)
+    modules_manager.sort_modules()
 
     caster = ResultCaster()
     dispatcher = Dispatcher(result_caster=caster)

@@ -10,8 +10,11 @@ class Module:
         self.commands: List[Command] = []
         self.name = name
 
-    def add_command(self, command: Command):
+    def add_command(self, command: Command) -> None:
         self.commands.append(command)
+
+    def sort_commands(self) -> None:
+        self.commands.sort(key=lambda command: command.priority)
 
     def register(
         self,

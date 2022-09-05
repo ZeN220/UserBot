@@ -23,5 +23,9 @@ class ModulesManager:
             if command:
                 return command
 
-    def add_module(self, module: Module):
+    def add_module(self, module: Module) -> None:
         self.modules.append(module)
+
+    def sort_modules(self) -> None:
+        for module in self.modules:
+            module.sort_commands()
