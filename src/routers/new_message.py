@@ -55,7 +55,7 @@ async def execute_command(event: UserEvent):
     try:
         response = await command.start(
             event, gateway=event['gateway'], api_context=event.api_ctx, session=event.session,
-            dispatcher=event['dispatcher']
+            dispatcher=event['dispatcher'], modules_manager=manager
         )
     except NotEnoughArgs:
         await event.session.send_service_message(
