@@ -1,5 +1,5 @@
 from enum import IntEnum
-from typing import Dict
+from typing import Dict, Optional
 
 from pydantic import BaseModel, Field, validator
 
@@ -15,7 +15,7 @@ class CommandResponse(BaseModel):
 
 
 class CommandArgs(BaseModel):
-    args: Dict[str, str]
+    args: Dict[str, Optional[str]]
 
     @validator('args')
     def convert_arg_to_int(cls, args: Dict[str, str]):  # noqa
@@ -24,6 +24,13 @@ class CommandArgs(BaseModel):
         пришлось создать модель для аргументов и валидировать значения в ней
         """
         for key, value in args.items():
-            if value.isdigit():
-                args.update({key: int(value)})
+            if value is None:
+                continue
+            elif value.isdigit():
+                value = int(value)
+            elif value == 'true':
+                value = True
+            elif value == 'false':
+                value = False
+            args.update({key: value})
         return args
