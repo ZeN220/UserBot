@@ -1,9 +1,8 @@
 import asyncio
 import logging
-from typing import List, Optional, TYPE_CHECKING, NoReturn, Union
+from typing import List, Optional, TYPE_CHECKING
 
 from src.dispatching import Dispatcher
-from .errors import UndefinedSessionError
 
 if TYPE_CHECKING:
     from .session import Session
@@ -23,13 +22,20 @@ class SessionManager:
         return cls.main_session and cls.main_session == other_session
 
     @classmethod
-    def get_session_by_user_token(cls, user_token: str) -> Union[NoReturn, 'Session']:
+    def get_session_by_owner_id(cls, owner_id: int) -> Optional['Session']:
+        if cls.main_session.owner_id == owner_id:
+            return cls.main_session
+        for session in cls.sessions:
+            if session.owner_id == owner_id:
+                return session
+
+    @classmethod
+    def get_session_by_user_token(cls, user_token: str) -> Optional['Session']:
         if cls.main_session.user.token == user_token:
             return cls.main_session
         for session in cls.sessions:
             if session.user.token == user_token:
                 return session
-        raise UndefinedSessionError(user_token)
 
     @classmethod
     def add_session(cls, session: 'Session', is_main: Optional[bool] = False) -> None:
@@ -53,7 +59,14 @@ class SessionManager:
         )
 
     @classmethod
-    def delete_session(cls, session: 'Session') -> None:
+    def delete_session_by_owner_id(cls, owner_id: int) -> 'Session':
+        session = cls.get_session_by_owner_id(owner_id)
+        return cls.delete_session(session)
+
+    @classmethod
+    def delete_session(cls, session: 'Session') -> 'Session':
+        # При удалении сессии пользователя, HTTP клиент от aiohttp остается открытым,
+        # его нужно закрывать через отдельный метод session.close_session()
         cls.sessions.remove(session)
         # Для отключения поллинга сессии, нужно получить список всех задач и
         # по имени задачи найти нужную и отменить её.
@@ -64,6 +77,7 @@ class SessionManager:
                 task.cancel()
                 break
         logger.info(f'Сессия [{session.owner_id}] была успешно удалена.')
+        return session
 
     @classmethod
     async def run_all_polling(cls, dispatcher: Dispatcher) -> None:
