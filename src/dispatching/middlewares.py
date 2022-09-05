@@ -13,8 +13,6 @@ class NoneObjectMiddleware(BaseMiddleware):
         VK API при определенных обстоятельствах может возвращать пустое событие,
         такие события нужно пропускать
         """
-        if event.object is None:
-            print(event)
         return MiddlewareResult(event.object is not None)
 
 
