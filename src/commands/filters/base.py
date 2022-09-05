@@ -18,6 +18,9 @@ class BaseFilter(ABC):
     def __or__(self, other: 'BaseFilter'):
         return OrFilter(self, other)
 
+    def __invert__(self):
+        return NotFilter(self)
+
 
 class OrFilter(BaseFilter):
     def __init__(self, *filters: BaseFilter):
@@ -29,3 +32,12 @@ class OrFilter(BaseFilter):
             if response.result:
                 return FilterResult(result=True, context=response.context)
         return FilterResult(result=False)
+
+
+class NotFilter(BaseFilter):
+    def __init__(self, filter_: BaseFilter):
+        self.filter_ = filter_
+
+    async def check(self, event: UserEvent) -> FilterResult:
+        response = await self.filter_.check(event)
+        return FilterResult(result=not response.result, context=response.context)
