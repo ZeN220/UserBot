@@ -107,7 +107,7 @@ class GetSessionInfoHandler(BaseHandler):
     ) -> 'CommandResponse':
         deactivate_modules = session.deactivate_modules
         all_modules_name = modules_manager.get_modules_names()
-        activate_modules = set(all_modules_name) - set(deactivate_modules)
+        activate_modules = clear_list_by_other_list(all_modules_name, deactivate_modules)
         response = []
         count_modules = 1
         for module in activate_modules:
@@ -122,7 +122,7 @@ class GetSessionInfoHandler(BaseHandler):
             count_modules += 1
         response = '\n'.join(response)
         return CommandResponse(
-            response=f'Список ваших модулей: \n{response}'
+            response=f'[📚] Список ваших модулей: \n{response}'
         )
 
 
@@ -176,3 +176,9 @@ class DeactivateModuleHandler(BaseHandler):
         return CommandResponse(
             response=f'[📙] Модуль «{module_name}» успешно деактивирован.'
         )
+
+
+def clear_list_by_other_list(first_list: list, second_list: list) -> list:
+    for element in second_list:
+        first_list.remove(element)
+    return first_list
