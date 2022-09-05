@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import text
 
 from .session import SessionGateway
 from .template import TemplateGateway
