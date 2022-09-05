@@ -12,6 +12,9 @@ class ModulesManager:
     def __init__(self):
         self.modules: List[Module] = []
 
+    def get_modules_names(self) -> List[str]:
+        return [module.name for module in self.modules]
+
     def find_command(self, session: Session, text: str) -> Optional[Command]:
         for module in self.modules:
             if module.name in session.deactivate_modules:
