@@ -12,6 +12,11 @@ SQLAlchemy = "^1.4.40"
 aiosqlite = "^0.17.0"
 alembic = "^1.8.1"
 
+systemd = {version = '0.16.1', optional = true}
+
+[tool.poetry.extras]
+systemd = ['systemd']
+
 [tool.poetry.dev-dependencies]
 
 [build-system]

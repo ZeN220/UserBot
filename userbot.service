@@ -1,0 +1,14 @@
+[Unit]
+Description=UserBot VK
+After=network.target
+
+[Service]
+User=userbot
+Group=userbot
+Type=simple
+WorkingDirectory=/opt/userbot
+ExecStart=/path/to/python /path/to/__main__.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
