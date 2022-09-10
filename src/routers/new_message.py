@@ -1,8 +1,10 @@
-from vkwave.bots import DefaultRouter, FromMeFilter
 import re
+import asyncio
 
-from src.commands.base.manager import ModulesManager
+from vkwave.bots import DefaultRouter, FromMeFilter
+
 from src.commands.base.errors import NotEnoughArgs
+from src.commands.base.manager import ModulesManager
 from src.dispatching import UserEvent
 from src.dispatching.filters import TemplateFilter, PrefixFilter, EventTypeFilter
 
@@ -22,8 +24,10 @@ async def send_template(event: UserEvent):
     if template['attachment']:
         is_audio = AUDIO_DOCUMENT_REGEXP.match(template['attachment'][0])
         if is_audio:
-            await api_context.messages.delete(message_ids=message_id, delete_for_all=1)
-            await api_context.messages.send(peer_id=peer_id, **template, random_id=0)
+            await asyncio.gather(
+                api_context.messages.delete(message_ids=message_id, delete_for_all=1),
+                api_context.messages.send(peer_id=peer_id, **template, random_id=0)
+            )
             return
 
     await api_context.messages.edit(
