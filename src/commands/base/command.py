@@ -2,10 +2,10 @@ import re
 from typing import List, TYPE_CHECKING, Type, Union, Optional
 
 from src.commands.filters.base import BaseFilter
-from src.dispatching import UserEvent
-from .types import CommandResponse
-from .errors import NotEnoughArgs
 from src.commands.filters.errors import ParseUserError
+from src.dispatching import UserEvent
+from .errors import NotEnoughArgs
+from .types import CommandResponse
 
 if TYPE_CHECKING:
     from .handler import BaseHandler
@@ -38,12 +38,12 @@ class Command:
         is_command = self.check_aliases(text)
         return is_command
 
-    async def start(self, event: 'UserEvent', **kwargs) -> CommandResponse:
+    async def start(self, event: UserEvent, **kwargs) -> CommandResponse:
         try:
             response = await self.handler.run(event=event, **kwargs)
         except ParseUserError:
             response = CommandResponse(
-                code=404, 
+                code=404,
                 response=f'[⚠] При обработке команды «{self.name}» не удалось '
                          f'получить пользователя на которого она будет воздействовать.'
             )
