@@ -6,7 +6,6 @@ from src.commands.base.errors import NotEnoughArgs
 from src.dispatching import UserEvent
 from src.dispatching.filters import TemplateFilter, PrefixFilter, EventTypeFilter
 
-# https://github.com/danyadev/longpoll-doc#%D1%81%D0%BE%D0%B1%D1%8B%D1%82%D0%B8%D0%B5-4-%D0%BD%D0%BE%D0%B2%D0%BE%D0%B5-%D1%81%D0%BE%D0%BE%D0%B1%D1%89%D0%B5%D0%BD%D0%B8%D0%B5
 new_message_router = DefaultRouter(
     [EventTypeFilter(4), FromMeFilter(True)]
 )
