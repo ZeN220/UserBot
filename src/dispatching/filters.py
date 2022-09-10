@@ -23,7 +23,7 @@ class PrefixFilter(BaseFilter):
 class TemplateFilter(BaseFilter):
     async def check(self, event: 'UserEvent') -> FilterResult:
         text = event.object.object.text
-        if len(text) > 64:
+        if len(text) > 64 or 'templates' in event.session.deactivate_modules:
             return FilterResult(False)
 
         gateway = event['gateway']
