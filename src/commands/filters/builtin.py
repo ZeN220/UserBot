@@ -21,10 +21,6 @@ class ParseUserFilter(BaseFilter):
         if marked_users:
             return FilterResult(result=True, context={'user_id': marked_users[0][1][0]})
 
-        from_text = await self.parse_from_text(message_object.text, user_context)
-        if from_text is not None:
-            return FilterResult(result=True, context={'user_id': from_text})
-
         extra = message_object.extra_message_data
         if extra.get('reply') is not None:
             user_id = await self.parse_from_reply(message_object.message_id, user_context)
@@ -35,6 +31,11 @@ class ParseUserFilter(BaseFilter):
                 message_object.message_id, user_context
             )
             return FilterResult(result=True, context={'users_ids': users_ids})
+
+        from_text = await self.parse_from_text(message_object.text, user_context)
+        if from_text is not None:
+            return FilterResult(result=True, context={'user_id': from_text})
+
         raise ParseUserError(event.session.owner_id)
 
     @staticmethod
