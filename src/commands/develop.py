@@ -37,7 +37,6 @@ class GetUserIDHandler(BaseHandler):
         users_ids: Optional[List[int]] = None
     ) -> 'CommandResponse':
         if users_ids is not None:
-            # TODO: Костыль с конвертацией типов
             users_ids = map(str, users_ids)
             users_ids = '\n'.join(users_ids)
             return CommandResponse(
