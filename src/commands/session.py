@@ -99,7 +99,7 @@ class GetSessions(BaseHandler):
 
 
 @session_module.register(
-    name='session_info', aliases=['session', 'сессия']
+    name='modules_of_session', aliases=['modules', 'модули']
 )
 class GetSessionInfoHandler(BaseHandler):
     async def execute(
