@@ -11,7 +11,7 @@ social_module = Module('social')
 
 @social_module.register(
     ParseUserFilter(), name='add_friend',
-    aliases=['др+', 'друг+', 'fr+', 'friend+'], args_syntax=[r'(\d+)', '']
+    aliases=['др+', 'друг+', 'fr+', 'friend+'], args_syntax=r'(\d+)?'
 )
 class AddFriendHandler(BaseHandler):
     async def execute(
@@ -33,7 +33,7 @@ class AddFriendHandler(BaseHandler):
 
 @social_module.register(
     ParseUserFilter(), name='remove_friend',
-    aliases=['др-', 'друг-', 'fr-', 'friend-'], args_syntax=[r'(\d+)', '']
+    aliases=['др-', 'друг-', 'fr-', 'friend-'], args_syntax=r'(\d+)?'
 )
 class RemoveFriendHandler(BaseHandler):
     async def execute(
@@ -55,7 +55,7 @@ class RemoveFriendHandler(BaseHandler):
 
 @social_module.register(
     ParseUserFilter(), name='add_block',
-    aliases=['чс+', 'блок+', 'bl+', 'block+'], args_syntax=[r'(\d+)', '']
+    aliases=['чс+', 'блок+', 'bl+', 'block+'], args_syntax=r'(\d+)?'
 )
 class AddBlockHandler(BaseHandler):
     async def execute(
@@ -77,7 +77,7 @@ class AddBlockHandler(BaseHandler):
 
 @social_module.register(
     ParseUserFilter(), name='remove_block',
-    aliases=['чс-', 'блок-', 'bl-', 'block-'], args_syntax=[r'(\d+)', '']
+    aliases=['чс-', 'блок-', 'bl-', 'block-'], args_syntax=r'(\d+)?'
 )
 class RemoveBlockHandler(BaseHandler):
     async def execute(

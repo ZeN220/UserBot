@@ -28,7 +28,7 @@ class GetPeerIDHandler(BaseHandler):
 
 @develop_module.register(
     ParseUserFilter(), name='get_user_id', aliases=['user', 'пользователь'],
-    args_syntax=[r'(\d+)', '']
+    args_syntax=r'(\d+)?'
 )
 class GetUserIDHandler(BaseHandler):
     async def execute(

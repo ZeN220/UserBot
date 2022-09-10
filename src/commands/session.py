@@ -178,6 +178,12 @@ class DeactivateModuleHandler(BaseHandler):
         )
 
 
+@session_module.register(
+    name='execute_api', aliases=['api', 'апи'],
+    args_syntax=r'(?P<method>[\w\.]+) ()'
+)
+
+
 def clear_list_by_other_list(first_list: list, second_list: list) -> list:
     for element in second_list:
         first_list.remove(element)

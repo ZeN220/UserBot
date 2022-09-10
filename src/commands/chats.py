@@ -11,7 +11,7 @@ chats_module = Module('chats')
 
 @chats_module.register(
     ParseUserFilter(), ConversationFilter(from_chat=True), name='invite',
-    aliases=['invite', 'добавить'], args_syntax=[r'(\d+)', '']
+    aliases=['invite', 'добавить'], args_syntax=r'(\d+)?'
 )
 class InviteHandler(BaseHandler):
     async def execute(
@@ -40,7 +40,7 @@ class InviteHandler(BaseHandler):
 
 @chats_module.register(
     ParseUserFilter(), ConversationFilter(from_chat=True), name='kick',
-    aliases=['kick', 'кик'], priority=Priority.HIGH, args_syntax=[r'(\d+)', '']
+    aliases=['kick', 'кик'], priority=Priority.HIGH, args_syntax=r'(\d+)?'
 )
 class KickHandler(BaseHandler):
     async def execute(
@@ -71,7 +71,7 @@ class KickHandler(BaseHandler):
 
 @chats_module.register(
     ParseUserFilter(), ConversationFilter(from_chat=True), name='set_admin',
-    aliases=['admin+', 'админ+'], args_syntax=[r'(\d+)', '']
+    aliases=['admin+', 'админ+'], args_syntax=r'(\d+)?'
 )
 class SetAdminHandler(BaseHandler):
     async def execute(
@@ -107,7 +107,7 @@ class SetAdminHandler(BaseHandler):
 
 @chats_module.register(
     ParseUserFilter(), ConversationFilter(from_chat=True), name='remove_admin',
-    aliases=['admin-', 'админ-'], args_syntax=[r'(\d+)', '']
+    aliases=['admin-', 'админ-'], args_syntax=r'(\d+)?'
 )
 class SetAdminHandler(BaseHandler):
     async def execute(
