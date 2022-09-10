@@ -11,6 +11,7 @@ class Priority(IntEnum):
 
 
 class CommandResponse(BaseModel):
+    code: int = Field(200, description='Command execution code')
     response: str = Field(None, description='Answer of command')
 
 

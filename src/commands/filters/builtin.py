@@ -7,6 +7,7 @@ from vkwave.api import APIOptionsRequestContext
 from src.sessions import SessionManager
 from src.dispatching import UserEvent
 from .base import BaseFilter, FilterResult
+from .errors import ParseUserError
 
 
 class ParseUserFilter(BaseFilter):
@@ -34,7 +35,7 @@ class ParseUserFilter(BaseFilter):
                 message_object.message_id, user_context
             )
             return FilterResult(result=True, context={'users_ids': users_ids})
-        return FilterResult(result=False)
+        raise ParseUserError(event.session.owner_id)
 
     @staticmethod
     async def parse_from_reply(

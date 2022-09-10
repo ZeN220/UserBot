@@ -53,17 +53,8 @@ async def execute_command(event: UserEvent):
             delete_for_all=1, message_ids=event.object.object.message_id
         )
 
-    # TODO: Обработка ошибка NotEnoughARgs в этом месте является не лучшим решением,
-    #  ее стоит обрабатывать на более низком уровне
-    try:
-        response = await command.start(
-            event, gateway=event['gateway'], api_context=event.api_ctx, session=event.session,
-            dispatcher=event['dispatcher'], modules_manager=manager
-        )
-    except NotEnoughArgs:
-        await event.session.send_service_message(
-            f'[⌨] При написании команды «{event.object.object.text}» '
-            f'было указано недостаточно аргументов.'
-        )
-    else:
-        return response
+    response = await command.start(
+        event, gateway=event['gateway'], api_context=event.api_ctx, session=event.session,
+        dispatcher=event['dispatcher'], modules_manager=manager
+    )
+    return response
