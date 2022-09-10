@@ -16,20 +16,25 @@ from src.routers import new_message_router
 from src.sessions import Session, SessionManager
 from src.sessions.from_database import load_sessions_from_database
 
+handlers = []
 try:
     from systemd.journal import JournaldLogHandler
-    journald_log_handler = JournaldLogHandler()
+    handlers.append(JournaldLogHandler())
 except ModuleNotFoundError:
-    journald_log_handler = None
+    pass
 
 
 async def main():
     config = Config.load_from_file('config.toml')
 
-    logging.basicConfig(
-        level=config.logging.level, format=config.logging.format, handlers=[journald_log_handler]
-    )
-    logging.error('Error message')
+    if handlers:
+        logging.basicConfig(
+            level=config.logging.level, format=config.logging.format, handlers=handlers
+        )
+    else:
+        logging.basicConfig(
+            level=config.logging.level, format=config.logging.format
+        )
 
     engine = create_async_engine(config.database.url, future=True)
     # Возможно, установка настройки expire_on_commit=False является не лучшим решением,
