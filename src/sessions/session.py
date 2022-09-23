@@ -18,7 +18,7 @@ DEFAULT_SETTINGS = {
         'edit_notify': False
     },
     'to_delete': {
-        'trigger': ['дд'],
+        'triggers': ['дд'],
         'argument': '-'
     }
 }
