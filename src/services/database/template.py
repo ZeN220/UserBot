@@ -17,16 +17,14 @@ class TemplateGateway(BaseGateway[Template]):
         query = select(Template).where(
             (Template.owner_id == owner_id) & (Template.trigger == trigger)
         ).options(joinedload(Template.attachments))
-        async with self.session.begin():
-            result = await self.session.execute(query)
+        result = await self.session.execute(query)
         return result.scalar()
 
     async def get_triggers_by_owner_id(self, owner_id: int) -> Optional[List[Template]]:
         query = select(Template.trigger, func.count(Template.attachments)).where(
             Template.owner_id == owner_id
         ).join(Template.attachments, isouter=True).group_by(Template.trigger)
-        async with self.session.begin():
-            result = await self.session.execute(query)
+        result = await self.session.execute(query)
         return result.all()
 
     async def exists(self, trigger: str, owner_id: int) -> bool:
@@ -35,14 +33,12 @@ class TemplateGateway(BaseGateway[Template]):
                 (Template.owner_id == owner_id) & (Template.trigger == trigger)
             )
         ))
-        async with self.session.begin():
-            result = await self.session.execute(query)
+        result = await self.session.execute(query)
         return result.scalar()
 
     async def delete(self, trigger: str, owner_id: int) -> None:
         query = delete(Template).where((Template.trigger == trigger) & (owner_id == owner_id))
-        async with self.session.begin():
-            await self.session.execute(query)
+        await self.session.execute(query)
 
     async def create(
         self, trigger: str, owner_id: int,

@@ -16,20 +16,17 @@ class SessionGateway(BaseGateway[SessionModel]):
         query = select(SessionModel).options(
             subqueryload(SessionModel.deactivate_modules)
         )
-        async with self.session.begin():
-            result = await self.session.execute(query)
+        result = await self.session.execute(query)
         return result.scalars().all()
 
     async def get_by_group_id(self, group_id: int) -> List[SessionModel]:
         query = select(SessionModel).where(SessionModel.group_id == group_id)
-        async with self.session.begin():
-            result = await self.session.execute(query)
+        result = await self.session.execute(query)
         return result.scalars().all()
 
     async def get_all(self) -> List[SessionModel]:
         query = select(SessionModel)
-        async with self.session.begin():
-            result = await self.session.execute(query)
+        result = await self.session.execute(query)
         return result.scalars().all()
 
     async def create(
@@ -50,12 +47,10 @@ class SessionGateway(BaseGateway[SessionModel]):
         query = delete(SessionModel).where(
             SessionModel.owner_id == owner_id
         )
-        async with self.session.begin():
-            await self.session.execute(query)
+        await self.session.execute(query)
 
     async def delete_by_user_token(self, user_token: str) -> None:
         query = delete(SessionModel).where(
             SessionModel.user_token == user_token
         )
-        async with self.session.begin():
-            await self.session.execute(query)
+        await self.session.execute(query)
