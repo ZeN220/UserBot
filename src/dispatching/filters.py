@@ -32,3 +32,26 @@ class TemplateFilter(BaseFilter):
             attachments = [attachment.document for attachment in template.attachments]
             event['template'] = {'message': template.answer, 'attachment': attachments}
         return FilterResult(bool(template))
+
+
+class ToDeleteFilter(BaseFilter):
+    async def check(self, event: 'UserEvent') -> FilterResult:
+        session = event.session
+        text = event.object.object.text
+
+        to_delete = session.settings.get('to_delete')
+        argument = to_delete.get('argument')
+        valid_strings = [trigger + argument for trigger in to_delete.get('triggers')]
+        if text.startswith(tuple(valid_strings)):
+            count = text.split(argument)
+            if len(count) == 1:
+                event['count'] = 1
+                return FilterResult(True)
+
+            count = count[1]
+            if not count.isdigit():
+                return FilterResult(False)
+            else:
+                event['count'] = int(count)
+                return FilterResult(True)
+        return FilterResult(False)

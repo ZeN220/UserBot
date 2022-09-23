@@ -5,12 +5,42 @@ from vkwave.bots import DefaultRouter, FromMeFilter
 
 from src.commands.base.manager import ModulesManager
 from src.dispatching import UserEvent
-from src.dispatching.filters import TemplateFilter, PrefixFilter, EventTypeFilter
+from src.dispatching.filters import TemplateFilter, PrefixFilter, EventTypeFilter, ToDeleteFilter
 
 new_message_router = DefaultRouter(
     [EventTypeFilter(4), FromMeFilter(True)]
 )
 AUDIO_DOCUMENT_REGEXP = re.compile(r'doc\d+_\d+_\w+')
+
+"""
+Динамические команды, такие как вызов шаблонов и удаление сообщений должны 
+выноситься в отдельный роутер
+"""
+
+
+@new_message_router.registrar.with_decorator(ToDeleteFilter())
+async def to_delete(event: UserEvent):
+    # + 1 Нужен для удаления сообщения, которое вызвало команду
+    count = event['count'] + 1
+    peer_id = event.object.object.peer_id
+
+    message_ids = []
+    history = await event.api_ctx.messages.get_history(
+        peer_id=peer_id, count=50+count
+    )
+    for message in history.response.items:
+        if len(message_ids) >= count:
+            break
+
+        if message.from_id == event.session.owner_id and not message.action:
+            message_id = message.id
+            message_ids.append(message_id)
+            await event.api_ctx.messages.edit(
+                message_id=message_id,
+                peer_id=peer_id,
+                message='&#13;'
+            )
+    await event.api_ctx.messages.delete(message_ids=message_ids, delete_for_all=1)
 
 
 @new_message_router.registrar.with_decorator(TemplateFilter())
