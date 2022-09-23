@@ -4,8 +4,7 @@ import logging
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from src.commands import templates_module, social_module, dialogs_module, develop_module, \
-    chats_module, session_module
+from src.commands import setup_modules
 from src.commands.base.manager import ModulesManager
 from src.config import Config
 from src.dispatching import Dispatcher
@@ -42,13 +41,7 @@ async def main():
     session_maker = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
 
     modules_manager = ModulesManager()
-    modules_manager.add_module(develop_module)
-    modules_manager.add_module(dialogs_module)
-    modules_manager.add_module(social_module)
-    modules_manager.add_module(templates_module)
-    modules_manager.add_module(chats_module)
-    modules_manager.add_module(session_module)
-    modules_manager.sort_modules()
+    setup_modules(modules_manager)
 
     caster = ResultCaster()
     dispatcher = Dispatcher(result_caster=caster)
