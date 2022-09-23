@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, List
+from typing import Optional, List, Dict
 
 from pydantic import BaseModel
 from vkwave.api import APIOptionsRequestContext, API
@@ -11,6 +11,17 @@ from src.dispatching import LongPoll, Dispatcher
 from .errors import InvalidSessionError
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_SETTINGS = {
+    'logger': {
+        'delete_notify': True,
+        'edit_notify': False
+    },
+    'to_delete': {
+        'trigger': ['дд'],
+        'argument': '-'
+    }
+}
 
 
 class User(BaseModel):
@@ -87,6 +98,7 @@ class Session(BaseModel):
     commands_prefix: str
     deactivate_modules: List[str] = []
     delete_command_after: Optional[bool] = True
+    settings: Dict[str, dict]
 
     @classmethod
     async def create_from_tokens(
@@ -95,14 +107,17 @@ class Session(BaseModel):
         group_token: str,
         commands_prefix: str,
         deactivate_modules: Optional[List[str]] = None,
-        delete_command_after: bool = True
+        delete_command_after: bool = True,
+        settings: Optional[Dict[str, dict]] = None
     ) -> 'Session':
         user = await User.create_from_token(user_token)
         group = await Group.create_from_token(group_token)
         deactivate_modules = deactivate_modules or []
+        settings = settings or DEFAULT_SETTINGS
         return cls(
             user=user, group=group, commands_prefix=commands_prefix,
-            delete_command_after=delete_command_after, deactivate_modules=deactivate_modules
+            delete_command_after=delete_command_after, deactivate_modules=deactivate_modules,
+            settings=settings
         )
 
     async def close_session(self) -> None:

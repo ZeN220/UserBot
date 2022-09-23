@@ -2,12 +2,14 @@ from typing import Optional
 
 from vkwave.api import API
 
+from src.database import Settings
 from src.dispatching import Dispatcher
 from src.services import HolderGateway
 from src.sessions import SessionManager, Session, InvalidSessionError
+from src.sessions.session import DEFAULT_SETTINGS
 from .base import Module, CommandResponse, BaseHandler
-from .filters import MainSessionFilter
 from .base.manager import ModulesManager
+from .filters import MainSessionFilter
 
 session_module = Module('session')
 
@@ -175,6 +177,39 @@ class DeactivateModuleHandler(BaseHandler):
         await gateway.deactivate_module.create(module_name, session.owner_id)
         return CommandResponse(
             response=f'[📙] Модуль «{module_name}» успешно деактивирован.'
+        )
+
+
+@session_module.register(
+    name='edit_settings', aliases=['настройки', 'settings'],
+    args_syntax=r'(?P<setting_name>\w+) (?P<setting_key>\w+) (?P<setting_value>.+)'
+)
+class EditSettingsHandler(BaseHandler):
+    async def execute(
+        self,
+        gateway: HolderGateway,
+        session: Session,
+        setting_name: str,
+        setting_key: str,
+        setting_value: str
+    ) -> 'CommandResponse':
+        exists_setting = DEFAULT_SETTINGS.get(setting_name)
+        if not exists_setting or exists_setting.get(setting_key) is None:
+            return CommandResponse(
+                response=f'[⚠] Настройки с названием «{setting_name}» '
+                         f'или ключа «{setting_key}» не существует.'
+            )
+
+        setting = await gateway.settings.get_by_owner_id(session.owner_id, setting_name)
+        if setting is None:
+            setting = Settings(owner_id=session.owner_id, name=setting_name, value={})
+
+        setting.value[setting_key] = setting_value
+        session.settings[setting_name] = setting.value
+        gateway.settings.save(setting)
+        await gateway.database_session.commit()
+        return CommandResponse(
+            response=f'[🔧] Настройка «{setting_name}» успешно изменена.'
         )
 
 

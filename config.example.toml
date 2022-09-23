@@ -5,13 +5,9 @@ commands_prefix = '/'
 delete_command_after = true
 deactivate_modules = []
 
-[to_delete]
-to_delete_trigger = ["дд"]
-to_delete_argument = "-"
-
-[logger]
-delete_notification = true
-edit_notification = false
+[settings]
+logger = {'delete_notify' = true, 'edit_notify' = false }
+to_delete = {'trigger' = ['дд'], 'argument' = '-'}
 
 # Для разработчиков
 [database]
