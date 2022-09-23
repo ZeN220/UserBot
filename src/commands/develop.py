@@ -10,7 +10,7 @@ from typing import Optional, List, Tuple
 from vkwave.api import APIOptionsRequestContext
 
 from src.dispatching import UserEvent
-from src.sessions import Session
+from src.sessions import Session, SessionManager
 from .base import CommandResponse, BaseHandler, Module
 from .filters import ParseUserFilter, ParseDataFromFwd, ParseDataFromReply, MainSessionFilter
 
@@ -137,7 +137,7 @@ class EvalHandler(BaseHandler):
 
 @develop_module.register(
     name='api_execute', aliases=['api', 'апи'],
-    args_syntax=r'(?P<method>[\w\.]+) (?P<params>[\w\s=]+)'
+    args_syntax=r'(?P<method>[\w\.]+) (?P<params>[\w\s=]+)?'
 )
 class APIExecuteHandler(BaseHandler):
     async def execute(self, session: Session, method: str, params: str) -> 'CommandResponse':
@@ -147,6 +147,22 @@ class APIExecuteHandler(BaseHandler):
         result = json.dumps(response, indent=2, ensure_ascii=False)
         return CommandResponse(
             response=f'[🖨] Метод «{method}» выполнен! \n\n{result}'
+        )
+
+
+@develop_module.register(
+    MainSessionFilter(), name='session_api_execute', aliases=['session_api', 'сессия_апи'],
+    args_syntax=r'(?P<owner_id>\d+) (?P<method>[\w\.]+) (?P<params>[\w\s=]+)'
+)
+class SessionAPIExecuteHandler(BaseHandler):
+    async def execute(self, owner_id: int, method: str, params: str) -> 'CommandResponse':
+        session = SessionManager.get_session_by_owner_id(owner_id)
+        params = parse_params_method(params)
+
+        response = await session.user.api_context.api_request(method, params)
+        result = json.dumps(response, indent=2, ensure_ascii=False)
+        return CommandResponse(
+            response=f'[🖨] Метод от имени [{owner_id}] «{method}» выполнен! \n\n{result}'
         )
 
 
