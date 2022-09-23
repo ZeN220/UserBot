@@ -3,7 +3,6 @@ import asyncio
 
 from vkwave.bots import DefaultRouter, FromMeFilter
 
-from src.commands.base.errors import NotEnoughArgs
 from src.commands.base.manager import ModulesManager
 from src.dispatching import UserEvent
 from src.dispatching.filters import TemplateFilter, PrefixFilter, EventTypeFilter
