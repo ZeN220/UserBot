@@ -5,7 +5,7 @@ import json
 import time
 from concurrent.futures import ProcessPoolExecutor
 from enum import Enum
-from typing import Optional, List, Tuple, Literal
+from typing import Optional, List, Tuple
 
 from vkwave.api import APIOptionsRequestContext
 
@@ -117,47 +117,37 @@ class PingHandler(BaseHandler):
 
 @develop_module.register(
     MainSessionFilter(), name='eval', aliases=['eval', 'евал'],
-    args_syntax=r'(?P<type_code>sync|async)\s?\n(?P<code>[\s\S]+)'
+    args_syntax=r'\n(?P<code>[\s\S]+)'
 )
 class EvalHandler(BaseHandler):
-    async def execute(self, code: str, type_code: Literal['sync', 'async']) -> 'CommandResponse':
+    async def execute(self, code: str) -> 'CommandResponse':
         """
         WARNING: Из-за создания ProcessPoolExecutor,
         данная команда может медленно работать на Windows OS
         Более подробное описание проблемы:
         https://stackoverflow.com/questions/64407653/slow-futures-processpoolexecutor-how-to-improve
         """
-        result, end_time = await run_code(code, type_code)
+        result, end_time = await run_code(code)
 
         return CommandResponse(
             response=f'[💻] Выполнено! \n\n{result}\n\n Затрачено времени: {end_time:.3f}s'
         )
 
 
-async def run_code(code: str, type_code: str) -> Tuple[str, float]:
+async def run_code(code: str) -> Tuple[str, float]:
     loop = asyncio.get_running_loop()
-    if type_code == 'sync':
-        func = _run_sync_code
-    else:
-        func = _run_async_code
 
     with ProcessPoolExecutor() as pool:
-        result, end_time = await loop.run_in_executor(pool, func, code)
+        result, end_time = await loop.run_in_executor(pool, _run_code, code)
         return result, end_time
 
 
-def _run_sync_code(code: str) -> Tuple[str, float]:
-    code_stdout = io.StringIO()
-    with contextlib.redirect_stdout(code_stdout):
-        start_time = time.perf_counter()
-        exec(code)
-        end_time = time.perf_counter() - start_time
-    return code_stdout.getvalue(), end_time
-
-
-def _run_async_code(code: str) -> Tuple[str, float]:
+def _run_code(code: str) -> Tuple[str, float]:
+    """
+    Для упрощения работы с командой, любой код запускается через асинхронную функцию main
+    """
     code_with_tabulation = "".join(
-        f"\n {_l}" for _l in code.split("\n")
+        f"\n {line}" for line in code.split("\n")
     )
     async_code = (
         f'import asyncio\n'
@@ -165,5 +155,11 @@ def _run_async_code(code: str) -> Tuple[str, float]:
         f'{code_with_tabulation}\n'
         f'asyncio.run(main())'
     )
-    result, end_time = _run_sync_code(async_code)
-    return result, end_time
+
+    code_stdout = io.StringIO()
+    with contextlib.redirect_stdout(code_stdout):
+        start_time = time.perf_counter()
+        exec(async_code)
+        end_time = time.perf_counter() - start_time
+    return code_stdout.getvalue(), end_time
+
