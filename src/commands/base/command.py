@@ -54,3 +54,6 @@ class Command:
                          f'было указано недостаточно аргументов.'
             )
         return response
+
+    def __repr__(self):
+        return f'<Command name={self.name}>'
