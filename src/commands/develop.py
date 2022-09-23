@@ -10,6 +10,7 @@ from typing import Optional, List, Tuple
 from vkwave.api import APIOptionsRequestContext
 
 from src.dispatching import UserEvent
+from src.sessions import Session
 from .base import CommandResponse, BaseHandler, Module
 from .filters import ParseUserFilter, ParseDataFromFwd, ParseDataFromReply, MainSessionFilter
 
@@ -132,6 +133,28 @@ class EvalHandler(BaseHandler):
         return CommandResponse(
             response=f'[💻] Выполнено! \n\n{result}\n\n Затрачено времени: {end_time:.3f}s'
         )
+
+
+@develop_module.register(
+    name='api_execute', aliases=['api', 'апи'],
+    args_syntax=r'(?P<method>[\w\.]+) (?P<params>[\w\s=]+)'
+)
+class APIExecuteHandler(BaseHandler):
+    async def execute(self, session: Session, method: str, params: str) -> 'CommandResponse':
+        params = parse_params_method(params)
+
+        response = await session.user.api_context.api_request(method, params)
+        result = json.dumps(response, indent=2, ensure_ascii=False)
+        return CommandResponse(
+            response=f'[🖨] Метод «{method}» выполнен! \n\n{result}'
+        )
+
+
+def parse_params_method(params: str):
+    params = params.split(' ')
+    params = [param.split('=') for param in params]
+    params = {key: value for key, value in params}
+    return params
 
 
 async def run_code(code: str) -> Tuple[str, float]:
