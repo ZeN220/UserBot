@@ -3,7 +3,7 @@ user_token = ""
 group_token = ""
 commands_prefix = '/'
 delete_command_after = true
-deactivate_modules = ['']
+deactivate_modules = []
 
 [to_delete]
 to_delete_trigger = ["дд"]
