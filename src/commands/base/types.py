@@ -25,6 +25,7 @@ class CommandArgs(BaseModel):
         пришлось создать модель для аргументов и валидировать значения в ней
         """
         for key, value in args.items():
+            value = value.lower()
             if value is None:
                 continue
             elif value.isdigit():
