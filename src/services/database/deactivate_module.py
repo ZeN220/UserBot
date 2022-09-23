@@ -13,7 +13,8 @@ class DeactivateModuleGateway(BaseGateway[DeactivateModule]):
         query = delete(DeactivateModule).where(
             (DeactivateModule.module == module) & (DeactivateModule.session_owner_id == owner_id)
         )
-        await self.session.execute(query)
+        async with self.session.begin():
+            await self.session.execute(query)
 
     async def create(self, module: str, owner_id: int) -> DeactivateModule:
         async with self.session.begin():
