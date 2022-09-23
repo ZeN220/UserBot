@@ -157,6 +157,8 @@ class APIExecuteHandler(BaseHandler):
 class SessionAPIExecuteHandler(BaseHandler):
     async def execute(self, owner_id: int, method: str, params: str) -> 'CommandResponse':
         session = SessionManager.get_session_by_owner_id(owner_id)
+        if session is None:
+            return CommandResponse(result='[⚠] Сессия не найдена.')
         params = parse_params_method(params)
 
         response = await session.user.api_context.api_request(method, params)
