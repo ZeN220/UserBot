@@ -8,5 +8,5 @@ class Settings(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     owner_id = Column(Integer)
-    key = Column(String)
+    name = Column(String)
     value = Column(JSON)
